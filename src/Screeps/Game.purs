@@ -4,12 +4,12 @@ module Screeps.Game where
 import Prelude
 import Effect (Effect)
 import Data.Maybe (Maybe)
-import Foreign.Object as StrMap
+import Foreign.Object (Object)
 
-import Screeps.Types (ConstructionSite, Creep, Flag, GameGlobal, Id, Market, ReturnCode, Room, Spawn, Structure, WorldMap)
-import Screeps.FFI (toMaybe, runThisEffFn0, runThisEffFn1, runThisEffFn2, runThisFn0, runThisFn1, unsafeField)
+import Screeps.Types (ConstructionSite, Creep, Flag, GameGlobal, Id, Market, Room, Spawn, Structure, WorldMap)
+import Screeps.FFI (runThisEffFn0, runThisEffFn1, runThisEffFn2, runThisFn1, toMaybe, unsafeField)
 
-foreign import getGameGlobal :: forall e. Eff (tick :: TICK | e) GameGlobal
+foreign import getGameGlobal :: Effect GameGlobal
 
 type Gcl =
   { level :: Int
@@ -21,16 +21,16 @@ type Cpu =
   , tickLimit :: Int
   , bucket :: Int }
 
-constructionSites :: GameGlobal -> StrMap.StrMap ConstructionSite
+constructionSites :: GameGlobal -> Object ConstructionSite
 constructionSites = unsafeField "constructionSites"
 
 cpu :: GameGlobal -> Cpu
 cpu = unsafeField "cpu"
 
-creeps :: GameGlobal -> StrMap.StrMap Creep
+creeps :: GameGlobal -> Object Creep
 creeps = unsafeField "creeps"
 
-flags :: GameGlobal -> StrMap.StrMap Flag
+flags :: GameGlobal -> Object Flag
 flags = unsafeField "flags"
 
 gcl :: GameGlobal -> Gcl
@@ -42,26 +42,26 @@ map = unsafeField "map"
 market :: GameGlobal -> Market
 market = unsafeField "market"
 
-rooms :: GameGlobal -> StrMap.StrMap Room
+rooms :: GameGlobal -> Object Room
 rooms = unsafeField "rooms"
 
-spawns :: GameGlobal -> StrMap.StrMap Spawn
+spawns :: GameGlobal -> Object Spawn
 spawns = unsafeField "spawns"
 
-structures :: GameGlobal -> StrMap.StrMap (Structure Unit)
+structures :: GameGlobal -> Object (Structure Unit)
 structures = unsafeField "structures"
 
 time :: GameGlobal -> Int
 time = unsafeField "time"
 
-getUsed :: forall e. GameGlobal -> Eff (time :: TIME | e) Number
+getUsed :: GameGlobal -> Effect Number
 getUsed game = runThisEffFn0 "getUsed" (cpu game)
 
 getObjectById :: forall a. GameGlobal -> Id a -> Maybe a
 getObjectById game id = toMaybe $ runThisFn1 "getObjectById" game id
 
-notify :: forall e. GameGlobal -> String -> Effect Unit
+notify :: GameGlobal -> String -> Effect Unit
 notify game msg = runThisEffFn1 "notify" game msg
 
-notify' :: forall e. GameGlobal -> String -> Int -> Effect Unit
+notify' :: GameGlobal -> String -> Int -> Effect Unit
 notify' game msg groupInterval = runThisEffFn2 "notify" game msg groupInterval

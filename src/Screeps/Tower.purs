@@ -15,7 +15,7 @@ energy = unsafeField "energy"
 energyCapacity :: Tower -> Int
 energyCapacity = unsafeField "energyCapacity"
 
-attack :: forall e. Tower -> Creep -> Eff ( cmd :: CMD | e) ReturnCode
+attack :: forall e. Tower -> Creep -> Effect ReturnCode
 attack = runThisEffFn1 "attack"
 
 heal :: forall e. Tower -> Creep -> Effect ReturnCode

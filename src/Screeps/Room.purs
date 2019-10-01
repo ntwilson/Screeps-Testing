@@ -13,7 +13,7 @@ import Screeps.Types (Controller, Color, FilterFn, FindType, LookType, Mode, Pat
 import Screeps.FFI (runThisEffFn1, runThisEffFn2, runThisEffFn3, runThisEffFn4, runThisEffFn5, runThisFn1, runThisFn2, runThisFn3, selectMaybes, toMaybe, unsafeField)
 
 foreign import data RoomGlobal :: Type
-foreign import getRoomGlobal :: forall e. Eff (tick :: TICK | e) RoomGlobal
+foreign import getRoomGlobal :: forall e. Effect RoomGlobal
 
 -- TODO: costCallback option
 type PathOptions o =
