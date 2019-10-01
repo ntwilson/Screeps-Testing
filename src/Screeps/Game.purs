@@ -6,10 +6,10 @@ import Effect (Effect)
 import Data.Maybe (Maybe)
 import Foreign.Object (Object)
 
-import Screeps.Types (ConstructionSite, Creep, Flag, GameGlobal, Id, Market, ReturnCode, Room, Spawn, Structure, WorldMap)
-import Screeps.FFI (toMaybe, runThisEffFn0, runThisEffFn1, runThisEffFn2, runThisFn0, runThisFn1, unsafeField)
+import Screeps.Types (ConstructionSite, Creep, Flag, GameGlobal, Id, Market, Room, Spawn, Structure, WorldMap)
+import Screeps.FFI (runThisEffFn0, runThisEffFn1, runThisEffFn2, runThisFn1, toMaybe, unsafeField)
 
-foreign import getGameGlobal :: forall e. Effect GameGlobal
+foreign import getGameGlobal :: Effect GameGlobal
 
 type Gcl =
   { level :: Int
@@ -54,14 +54,14 @@ structures = unsafeField "structures"
 time :: GameGlobal -> Int
 time = unsafeField "time"
 
-getUsed :: forall e. GameGlobal -> Effect Number
+getUsed :: GameGlobal -> Effect Number
 getUsed game = runThisEffFn0 "getUsed" (cpu game)
 
 getObjectById :: forall a. GameGlobal -> Id a -> Maybe a
 getObjectById game id = toMaybe $ runThisFn1 "getObjectById" game id
 
-notify :: forall e. GameGlobal -> String -> Effect Unit
+notify :: GameGlobal -> String -> Effect Unit
 notify game msg = runThisEffFn1 "notify" game msg
 
-notify' :: forall e. GameGlobal -> String -> Int -> Effect Unit
+notify' :: GameGlobal -> String -> Int -> Effect Unit
 notify' game msg groupInterval = runThisEffFn2 "notify" game msg groupInterval

@@ -1,15 +1,15 @@
 -- | Corresponds to the Screeps API [RoomPosition](http://support.screeps.com/hc/en-us/articles/203079201-RoomPosition)
 module Screeps.RoomPosition where
 
-import Effect
 import Prelude
 
-import Data.Either (Either(Left, Right))
-import Data.Maybe (Maybe(Nothing), maybe)
+import Effect (Effect)
+import Data.Either (Either)
+import Data.Maybe (Maybe(Nothing))
 import Effect.Exception (Error, try)
-import Screeps.FFI (runThisEffFn0, runThisEffFn1, runThisEffFn2, runThisEffFn3, runThisFn0, runThisFn1, runThisFn2, runThisFn3, selectMaybes, toMaybe, unsafeField)
+import Screeps.FFI (runThisEffFn0, runThisEffFn1, runThisEffFn2, runThisEffFn3, runThisFn1, runThisFn2, runThisFn3, selectMaybes, toMaybe, unsafeField)
 import Screeps.Room (PathOptions)
-import Screeps.Types (Color, Direction, FilterFn, FindContext(..), FindType, LookType, Path, ReturnCode, RoomObject, RoomPosition, TargetPosition(..), StructureType)
+import Screeps.Types (Color, Direction, FilterFn, FindContext(..), LookType, Path, ReturnCode, RoomPosition, StructureType, TargetPosition(..))
 import Unsafe.Coerce (unsafeCoerce)
 
 foreign import mkRoomPosition :: Int -> Int -> String -> RoomPosition
@@ -55,19 +55,19 @@ x = unsafeField "x"
 y :: RoomPosition -> Int
 y = unsafeField "y"
 
-createConstructionSite :: forall e. RoomPosition -> StructureType -> Effect ReturnCode
+createConstructionSite :: RoomPosition -> StructureType -> Effect ReturnCode
 createConstructionSite = runThisEffFn1 "createConstructionSite"
 
-createFlag :: forall e. RoomPosition -> Effect ReturnCode
+createFlag :: RoomPosition -> Effect ReturnCode
 createFlag = runThisEffFn0 "createFlag"
 
-createFlagWithName :: forall e. RoomPosition -> String -> Effect ReturnCode
+createFlagWithName :: RoomPosition -> String -> Effect ReturnCode
 createFlagWithName pos name = runThisEffFn1 "createFlag" pos name
 
-createFlagWithColor :: forall e. RoomPosition -> String -> Color -> Effect ReturnCode
+createFlagWithColor :: RoomPosition -> String -> Color -> Effect ReturnCode
 createFlagWithColor pos name color = runThisEffFn2 "createFlag" pos name color
 
-createFlagWithColors :: forall e. RoomPosition -> String -> Color -> Color -> Effect ReturnCode
+createFlagWithColors :: RoomPosition -> String -> Color -> Color -> Effect ReturnCode
 createFlagWithColors pos name color secondaryColor = runThisEffFn3 "createFlag" pos name color secondaryColor
 
 findClosestByPath :: forall a. RoomPosition -> FindContext a -> Effect (Either Error (Maybe a))
