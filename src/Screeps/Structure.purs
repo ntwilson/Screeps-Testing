@@ -2,11 +2,12 @@
 module Screeps.Structure where
 
 import Prelude
-import Effect (Effect)
-import Data.Maybe (Maybe(Just, Nothing))
 
-import Screeps.Types (Id, ReturnCode, Structure, StructureType)
+import Data.Maybe (Maybe(Just, Nothing))
+import Effect (Effect)
 import Screeps.FFI (runThisEffFn0, runThisEffFn1, unsafeField)
+import Screeps.Types (Id, ReturnCode, Structure, StructureType)
+import Unsafe.Coerce (unsafeCoerce)
 
 hits :: forall a. Structure a -> Int
 hits = unsafeField "hits"

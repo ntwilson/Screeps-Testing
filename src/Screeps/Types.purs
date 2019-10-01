@@ -9,7 +9,7 @@ import Data.Generic.Rep.Show (genericShow)
 import Data.Generic.Rep.Eq (genericEq)
 import Data.Maybe (Maybe)
 import Foreign.Object as StrMap
-import Data.Map.Internal as Map
+import Data.Map.Internal (Map)
 
 foreign import data GameGlobal :: Type
 
@@ -147,7 +147,7 @@ instance showColor :: Show Color where show = genericShow
 newtype LookType a = LookType String
 newtype FindType a = FindType Int
 
-type StructureInfo = Map Int
+type StructureInfo = Map String Int
 
 -----------------
 -- Helper types and functions

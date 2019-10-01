@@ -140,12 +140,12 @@ move = runThisEffFn1 "move"
 moveByPath :: forall e. Creep -> Path -> Effect ReturnCode
 moveByPath = runThisEffFn1 "moveByPath"
 
-moveTo :: forall a e. Creep -> TargetPosition a -> Eff (cmd :: CMD, memory :: MEMORY | e) ReturnCode
+moveTo :: forall a e. Creep -> TargetPosition a -> Effect ReturnCode
 moveTo creep (TargetPt x y) = runThisEffFn2 "moveTo" creep x y
 moveTo creep (TargetPos pos) = runThisEffFn1 "moveTo" creep pos
 moveTo creep (TargetObj obj) = runThisEffFn1 "moveTo" creep obj
 
-moveTo' :: forall a e. Creep -> TargetPosition a -> MoveOptions -> Eff (cmd :: CMD, memory :: MEMORY | e) ReturnCode
+moveTo' :: forall a e. Creep -> TargetPosition a -> MoveOptions -> Effect ReturnCode
 moveTo' creep (TargetPt x y) opts = runThisEffFn3 "moveTo" creep x y (selectMaybes opts)
 moveTo' creep (TargetPos pos) opts = runThisEffFn2 "moveTo" creep pos (selectMaybes opts)
 moveTo' creep (TargetObj obj) opts = runThisEffFn2 "moveTo" creep obj (selectMaybes opts)

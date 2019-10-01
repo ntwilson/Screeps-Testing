@@ -1,19 +1,18 @@
 -- | Corresponds to the Screeps API [RoomPosition](http://support.screeps.com/hc/en-us/articles/203079201-RoomPosition)
 module Screeps.RoomPosition where
 
-import Prelude
 import Effect
+import Prelude
+
 import Data.Either (Either(Left, Right))
 import Data.Maybe (Maybe(Nothing), maybe)
-
-import Screeps.Types (Color, Direction, FilterFn, FindContext(..), FindType, LookType, Path, ReturnCode, RoomObject, RoomPosition, TargetPosition(..), StructureType)
+import Effect.Exception (Error, try)
 import Screeps.FFI (runThisEffFn0, runThisEffFn1, runThisEffFn2, runThisEffFn3, runThisFn0, runThisFn1, runThisFn2, runThisFn3, selectMaybes, toMaybe, unsafeField)
 import Screeps.Room (PathOptions)
+import Screeps.Types (Color, Direction, FilterFn, FindContext(..), FindType, LookType, Path, ReturnCode, RoomObject, RoomPosition, TargetPosition(..), StructureType)
+import Unsafe.Coerce (unsafeCoerce)
 
 foreign import mkRoomPosition :: Int -> Int -> String -> RoomPosition
-
-tryPure :: forall a. Effect a -> Either Error a
-tryPure = runPure <<< try
 
 type ClosestPathOptions = PathOptions
   ( filter :: Maybe (forall a. a -> Boolean)
@@ -71,35 +70,35 @@ createFlagWithColor pos name color = runThisEffFn2 "createFlag" pos name color
 createFlagWithColors :: forall e. RoomPosition -> String -> Color -> Color -> Effect ReturnCode
 createFlagWithColors pos name color secondaryColor = runThisEffFn3 "createFlag" pos name color secondaryColor
 
-findClosestByPath :: forall a. RoomPosition -> FindContext a -> Either Error (Maybe a)
-findClosestByPath pos ctx = tryPure (toMaybe <$> runThisEffFn1 "findClosestByPath" pos (unwrapContext ctx))
+findClosestByPath :: forall a. RoomPosition -> FindContext a -> Effect (Either Error (Maybe a))
+findClosestByPath pos ctx = try (toMaybe <$> runThisEffFn1 "findClosestByPath" pos (unwrapContext ctx))
 
-findClosestByPath' :: forall a. RoomPosition -> FindContext a -> ClosestPathOptions -> Either Error (Maybe a)
-findClosestByPath' pos ctx opts = tryPure (toMaybe <$> runThisEffFn2 "findClosestByPath" pos ctx' options)
+findClosestByPath' :: forall a. RoomPosition -> FindContext a -> ClosestPathOptions -> Effect (Either Error (Maybe a))
+findClosestByPath' pos ctx opts = try (toMaybe <$> runThisEffFn2 "findClosestByPath" pos ctx' options)
   where ctx' = unwrapContext ctx
         options = selectMaybes opts
 
-findClosestByRange :: forall a. RoomPosition -> FindContext a -> Either Error (Maybe a)
-findClosestByRange pos ctx = tryPure (toMaybe <$> runThisEffFn1 "findClosestByRange" pos (unwrapContext ctx))
+findClosestByRange :: forall a. RoomPosition -> FindContext a -> Effect (Either Error (Maybe a))
+findClosestByRange pos ctx = try (toMaybe <$> runThisEffFn1 "findClosestByRange" pos (unwrapContext ctx))
 
-findClosestByRange' :: forall a. RoomPosition -> FindContext a -> FilterFn a -> Either Error (Maybe a)
-findClosestByRange' pos ctx filter = tryPure (toMaybe <$> runThisEffFn2 "findClosestByRange" pos (unwrapContext ctx) { filter })
+findClosestByRange' :: forall a. RoomPosition -> FindContext a -> FilterFn a -> Effect (Either Error (Maybe a))
+findClosestByRange' pos ctx filter = try (toMaybe <$> runThisEffFn2 "findClosestByRange" pos (unwrapContext ctx) { filter })
 
-findInRange :: forall a. RoomPosition -> FindContext a -> Int -> Either Error (Array a)
-findInRange pos ctx range = tryPure (runThisEffFn2 "findInRange" pos (unwrapContext ctx) range)
+findInRange :: forall a. RoomPosition -> FindContext a -> Int -> Effect (Either Error (Array a))
+findInRange pos ctx range = try (runThisEffFn2 "findInRange" pos (unwrapContext ctx) range)
 
-findInRange' :: forall a. RoomPosition -> FindContext a -> Int -> FilterFn a -> Either Error (Array a)
-findInRange' pos ctx range filter = tryPure (runThisEffFn3 "findInRange" pos (unwrapContext ctx) range { filter })
+findInRange' :: forall a. RoomPosition -> FindContext a -> Int -> FilterFn a -> Effect (Either Error (Array a))
+findInRange' pos ctx range filter = try (runThisEffFn3 "findInRange" pos (unwrapContext ctx) range { filter })
 
-findPathTo :: forall a. RoomPosition -> TargetPosition a -> Either Error Path
-findPathTo pos (TargetPt x' y') = tryPure (runThisEffFn2 "findPathTo" pos x' y')
-findPathTo pos (TargetPos destPos) = tryPure (runThisEffFn1 "findPathTo" pos destPos)
-findPathTo pos (TargetObj obj) = tryPure (runThisEffFn1 "findPathTo" pos obj)
+findPathTo :: forall a. RoomPosition -> TargetPosition a -> Effect (Either Error Path)
+findPathTo pos (TargetPt x' y') = try (runThisEffFn2 "findPathTo" pos x' y')
+findPathTo pos (TargetPos destPos) = try (runThisEffFn1 "findPathTo" pos destPos)
+findPathTo pos (TargetObj obj) = try (runThisEffFn1 "findPathTo" pos obj)
 
-findPathTo' :: forall a. RoomPosition -> TargetPosition a -> PathOptions () -> Either Error Path
-findPathTo' pos (TargetPt x' y') opts = tryPure (runThisEffFn3 "findPathTo" pos x' y' (selectMaybes opts))
-findPathTo' pos (TargetPos destPos) opts = tryPure (runThisEffFn2 "findPathTo" pos destPos (selectMaybes opts))
-findPathTo' pos (TargetObj obj) opts = tryPure (runThisEffFn2 "findPathTo" pos obj (selectMaybes opts))
+findPathTo' :: forall a. RoomPosition -> TargetPosition a -> PathOptions () -> Effect (Either Error Path)
+findPathTo' pos (TargetPt x' y') opts = try (runThisEffFn3 "findPathTo" pos x' y' (selectMaybes opts))
+findPathTo' pos (TargetPos destPos) opts = try (runThisEffFn2 "findPathTo" pos destPos (selectMaybes opts))
+findPathTo' pos (TargetObj obj) opts = try (runThisEffFn2 "findPathTo" pos obj (selectMaybes opts))
 
 getDirectionTo :: forall a. RoomPosition -> TargetPosition a -> Direction
 getDirectionTo pos (TargetPt x' y') = runThisFn2 "getDirectionTo" pos x' y'
@@ -129,5 +128,5 @@ isNearTo pos (TargetObj obj) = runThisFn1 "isNearTo" pos obj
 
 -- look function omitted - use lookFor
 
-lookFor :: forall a. RoomPosition -> LookType a -> Either Error (Array a)
-lookFor pos lookType = tryPure (runThisEffFn1 "lookFor" pos lookType)
+lookFor :: forall a. RoomPosition -> LookType a -> Effect (Either Error (Array a))
+lookFor pos lookType = try (runThisEffFn1 "lookFor" pos lookType)
