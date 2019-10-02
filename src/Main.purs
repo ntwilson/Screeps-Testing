@@ -1,10 +1,13 @@
-module Main where
+module Main (loop) where
 
 import Prelude
 
+import Data.Foldable (for_)
 import Effect (Effect)
-import Effect.Console (log)
+import Role.Harvester (run)
+import Screeps.Game (creeps, getGameGlobal)
 
-main :: Effect Unit
-main = do
-  log "🍝"
+loop :: Effect Unit
+loop = do
+  game <- getGameGlobal
+  for_ (creeps game) run
