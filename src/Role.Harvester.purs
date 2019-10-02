@@ -3,10 +3,9 @@ module Role.Harvester (run) where
 import Prelude
 
 import Data.Array (head)
-import Data.Maybe (Maybe(..), fromJust)
+import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Foreign.Object (lookup)
-import Partial.Unsafe (unsafePartial)
 import Screeps (err_not_in_range, find_sources, resource_energy)
 import Screeps.Creep (amtCarrying, carryCapacity, harvestSource, moveTo, transferToStructure)
 import Screeps.Game (getGameGlobal, spawns)
@@ -17,12 +16,11 @@ import Screeps.Types (Creep, ResourceType(..), TargetPosition(..))
 ignore :: forall a. a -> Unit
 ignore _ = unit
 
-ignoreF :: forall f a. Functor f => f a -> f Unit
-ignoreF f = f <#> ignore 
+ignoreM :: forall m a. Monad m => m a -> m Unit
+ignoreM m = m <#> ignore 
 
 run :: Creep -> Effect Unit
-run creep = do
-  game <- getGameGlobal
+run creep =
 
   if amtCarrying creep (ResourceType "energy") < carryCapacity creep
   then
@@ -31,14 +29,15 @@ run creep = do
       Just targetSource -> do
         harvestResult <- harvestSource creep targetSource
         if harvestResult == err_not_in_range
-        then moveTo creep (TargetObj targetSource) # ignoreF
+        then moveTo creep (TargetObj targetSource) # ignoreM
         else pure unit
-
-  else
+        
+  else do
+    game <- getGameGlobal
     case (spawns game # lookup "Spawn1") of
       Nothing -> pure unit
       Just spawn1 -> do
         transferResult <- transferToStructure creep spawn1 resource_energy
         if transferResult == err_not_in_range
-        then moveTo creep (TargetObj spawn1) # ignoreF
+        then moveTo creep (TargetObj spawn1) # ignoreM
         else pure unit
