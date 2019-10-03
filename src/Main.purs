@@ -2,16 +2,17 @@ module Main (loop) where
 
 import Prelude
 
+import Data.Either (Either(..))
 import Data.Foldable (for_)
-import Effect (Effect)
 import Data.Maybe (Maybe(..))
+import Effect (Effect)
+import Effect.Class.Console (error)
+import Effect.Console (log)
 import Role.Harvester (runHarvester)
 import Role.Upgrader (runUpgrader)
-import Screeps.Types (Creep)
-import Screeps.Game (creeps, getGameGlobal)
 import Screeps.Creep (getMemory)
-import Data.Either (either, fromRight, isRight)
-import Partial
+import Screeps.Game (creeps, getGameGlobal)
+import Screeps.Types (Creep)
 
 ignore :: forall a. a -> Unit
 ignore _ = unit
@@ -19,8 +20,6 @@ ignore _ = unit
 ignoreM :: forall m a. Monad m => m a -> m Unit
 ignoreM m = m <#> ignore 
 
-returnUnit :: forall a. a -> Effect Unit
-returnUnit a = pure unit
 
 matchUnit :: Creep -> String -> Effect Unit
 matchUnit creep role = 
@@ -34,7 +33,11 @@ runCreepRole :: Creep -> Effect Unit
 runCreepRole creep = 
   do
     role <- getMemory creep "role"
-    either returnUnit (matchUnit creep) role
+    case role of
+      Right json -> 
+        matchUnit creep json
+      Left e ->
+        log e
 
 loop :: Effect Unit
 loop = do
