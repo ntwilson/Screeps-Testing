@@ -29,22 +29,42 @@ runBuilder creep = do
 
   creepIsBuilding <- getMemory creep "Building"
   case creepIsBuilding of
-    Left e -> log e
+    Left e -> 
+      do
+        log e
     Right isBuilding ->
       case isBuilding of
-        true -> 
+        "true" -> 
           case ((amtCarrying creep (ResourceType "energy")) == 0) of
             true -> 
               do
                 s <- say creep "Harvesting"
-                setMemory creep "Building" false
+                setMemory creep "Building" "\"false\""
             false ->
               case head (find (room creep) find_construction_sites) of
-                Nothing -> pure unit
+                Nothing -> do
+                  pure unit
                 Just targetSite -> do
                   buildResult <- build creep targetSite
                   if buildResult == err_not_in_range 
                   then moveTo creep (TargetObj targetSite) # ignoreM
                   else pure unit
-        false -> pure unit  
+        "false" -> 
+          case ((amtCarrying creep (ResourceType "energy")) == (carryCapacity creep)) of
+            true -> do
+              s <- say creep "Building"
+              setMemory creep "Building" "\"true\""
+            false ->
+              case head (find (room creep) find_sources) of
+                Nothing -> do
+                  pure unit
+                Just targetSite -> do
+                  harvest <- harvestSource creep targetSite
+                  if harvest == err_not_in_range 
+                  then moveTo creep (TargetObj targetSite) # ignoreM
+                  else pure unit
+        _ -> do
+          pure unit
+              
+
       

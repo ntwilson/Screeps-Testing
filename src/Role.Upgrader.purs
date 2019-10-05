@@ -23,7 +23,7 @@ ignoreM m = m <#> ignore
 runUpgrader :: Creep -> Effect Unit
 runUpgrader creep =
 
-  if amtCarrying creep (ResourceType "energy") == 0
+  if amtCarrying creep (ResourceType "energy") < (carryCapacity creep)
   then case head (find (room creep) find_sources) of
     Nothing -> pure unit
     Just targetSource -> do

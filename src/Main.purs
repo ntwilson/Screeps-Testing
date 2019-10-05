@@ -43,6 +43,17 @@ runCreepRole creep =
       Left e ->
         log e
 
+-- spawnNewCreeps :: Unit -> Effect Unit
+-- spawnNewCreeps =
+--   let 
+--     minHarvesters :: int
+--     minHarvesters = 5
+--     minBuilder :: int
+--     minBuilders = 2
+--   in
+    
+
+
 loop :: Effect Unit
 loop = do
   game <- getGameGlobal
