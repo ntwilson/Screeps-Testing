@@ -13,6 +13,7 @@ import Role.Upgrader (runUpgrader)
 import Screeps.Creep (getMemory)
 import Screeps.Game (creeps, getGameGlobal)
 import Screeps.Types (Creep)
+import Role.Builder (runBuilder)
 
 ignore :: forall a. a -> Unit
 ignore _ = unit
@@ -22,12 +23,15 @@ ignoreM m = m <#> ignore
 
 
 matchUnit :: Creep -> String -> Effect Unit
-matchUnit creep role = 
-  if role == "harvester"
-    then
+matchUnit creep role = do
+  case role of
+    "Harvester" -> 
       (runHarvester creep)
-    else 
+    "Upgrader" -> 
       (runUpgrader creep)
+    "Builder" ->
+      (runBuilder creep)
+    _ -> pure unit
 
 runCreepRole :: Creep -> Effect Unit
 runCreepRole creep = 

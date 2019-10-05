@@ -24,14 +24,13 @@ runUpgrader :: Creep -> Effect Unit
 runUpgrader creep =
 
   if amtCarrying creep (ResourceType "energy") == 0
-  then
-    case head (find (room creep) find_sources) of
-      Nothing -> pure unit
-      Just targetSource -> do
-        harvestResult <- harvestSource creep targetSource
-        if harvestResult == err_not_in_range
-        then moveTo creep (TargetObj targetSource) # ignoreM
-        else pure unit
+  then case head (find (room creep) find_sources) of
+    Nothing -> pure unit
+    Just targetSource -> do
+      harvestResult <- harvestSource creep targetSource
+      if harvestResult == err_not_in_range
+      then moveTo creep (TargetObj targetSource) # ignoreM
+      else pure unit
         
   else do
     game <- getGameGlobal
