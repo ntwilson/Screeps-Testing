@@ -27,7 +27,7 @@ ignoreM m = m <#> ignore
 runBuilder :: Creep -> Effect Unit
 runBuilder creep = do
 
-  creepIsBuilding <- getMemory creep "Building"
+  creepIsBuilding <- getMemory creep "working"
   case creepIsBuilding of
     Left e -> 
       do
@@ -39,7 +39,7 @@ runBuilder creep = do
             true -> 
               do
                 s <- say creep "Harvesting"
-                setMemory creep "Building" "\"false\""
+                setMemory creep "working" "\"false\""
             false ->
               case head (find (room creep) find_construction_sites) of
                 Nothing -> do
@@ -52,8 +52,8 @@ runBuilder creep = do
         "false" -> 
           case ((amtCarrying creep (ResourceType "energy")) == (carryCapacity creep)) of
             true -> do
-              s <- say creep "Building"
-              setMemory creep "Building" "\"true\""
+              s <- say creep "working"
+              setMemory creep "working" "\"true\""
             false ->
               case head (find (room creep) find_sources) of
                 Nothing -> do

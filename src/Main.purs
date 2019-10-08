@@ -23,7 +23,7 @@ import Screeps.Memory (toJson)
 import Screeps.Room (find)
 import Screeps.RoomObject (room)
 import Screeps.Spawn (canCreateCreep, createCreep')
-import Screeps.Types (Creep, RawCreep, RawRoomObject)
+import Screeps.Types (Creep, RawCreep, RawRoomObject, ReturnCode(..))
 
 ignore :: forall a. a -> Unit
 ignore _ = unit
@@ -46,7 +46,7 @@ matchUnit creep role = do
 runCreepRole :: Creep -> Effect Unit
 runCreepRole creep = 
   do
-    role <- getMemory creep "\"role\""
+    role <- getMemory creep "role"
     case role of
       Right json -> 
         matchUnit creep json
@@ -55,7 +55,7 @@ runCreepRole creep =
 
 creepToRole :: (RawRoomObject RawCreep) -> Effect String
 creepToRole creep = do
-  role <- (getMemory creep "\"role\"")
+  role <- (getMemory creep "role")
   case role of
     Left e -> do
       pure "undefined"
@@ -84,18 +84,21 @@ spawnNewCreeps creep =
         Nothing -> pure unit
         Just spawn -> 
           if ((size harvesters) < minHarvesters) then do
-            r <- createCreep' spawn [part_move, part_work, part_work, part_carry] Nothing "{\"role\":\"Harvester\"}"
+            let x ={role: "\"Harvester\""}
+            r <- createCreep' spawn [part_move, part_work, part_work, part_carry] Nothing x
             case r of
               Right e -> logShow e
               Left code -> logShow code
           else
             if ((size builders) < minBuilder) then do
-              r <- createCreep' spawn [part_move, part_move, part_work, part_carry] Nothing "{\"role\":\"Builder\", \"Building\":\"false\"}"
+              let x = {role: "\"Builder\"", working: "\"true\""}
+              r <- createCreep' spawn [part_move, part_move, part_work, part_carry] Nothing x
               case r of
                 Right e -> logShow e
                 Left code -> logShow code
             else do
-              r <- createCreep' spawn [part_move, part_work, part_work, part_carry] Nothing "{{\"memory\": \"role\":\"Upgrader\"}}"
+              let x = {role: "\"Upgrader\"", working: "\"true\""}
+              r <- createCreep' spawn [part_move, part_work, part_work, part_carry] Nothing x
               case r of
                 Right e -> logShow e
                 Left code -> logShow code
@@ -106,11 +109,14 @@ loop = do
   game <- getGameGlobal
   if (isEmpty (creeps game)) then
     for_ (spawns game) \spawn -> do
-      createCreep' spawn [part_move, part_move, part_work, part_carry] Nothing "{{\"memory\": \"role\":\"Upgrader\"}}"
+      let x = {role: "\"Harvester\""}
+      createCreep' spawn [part_move, part_move, part_work, part_carry] Nothing x
   else  
     pure unit
   for_ (creeps game) \n -> do
-    spawnNewCreeps n
+    for_ (spawns game) \spawn -> do
+      if(canCreateCreep spawn [part_move, part_work, part_work, part_carry] == ReturnCode 0) then spawnNewCreeps n
+      else pure unit
     runCreepRole n
     
 
