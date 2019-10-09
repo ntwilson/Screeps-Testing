@@ -2,6 +2,7 @@ module Role.Harvester (runHarvester) where
 
 import Prelude
 
+import CreepRoles (Harvester)
 import Data.Array (head, filter)
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
@@ -11,7 +12,7 @@ import Screeps.Game (getGameGlobal)
 import Screeps.Room (find)
 import Screeps.RoomObject (room)
 import Screeps.Structure (structureType)
-import Screeps.Types (Creep, RawRoomObject, RawStructure, ResourceType(..), TargetPosition(..))
+import Screeps.Types (RawRoomObject, RawStructure, TargetPosition(..))
 
 ignore :: forall a. a -> Unit
 ignore _ = unit
@@ -23,10 +24,10 @@ desiredTarget :: forall a. RawRoomObject (RawStructure a) -> Boolean
 desiredTarget struct = 
   (structureType struct) == structure_spawn || (structureType struct) == structure_extension
 
-runHarvester :: Creep -> Effect Unit
-runHarvester creep =
+runHarvester :: Harvester -> Effect Unit
+runHarvester { creep, mem } =
 
-  if amtCarrying creep (ResourceType "energy") < carryCapacity creep
+  if amtCarrying creep resource_energy < carryCapacity creep
   then
     case head (find (room creep) find_sources) of
       Nothing -> pure unit
