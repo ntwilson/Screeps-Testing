@@ -2,15 +2,15 @@
 module Screeps.Spawn where
 
 import Prelude
-import Effect (Effect)
+
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
 import Data.Either (Either(Left, Right))
-import Data.Maybe (Maybe)
-
+import Data.Maybe (Maybe(..))
+import Effect (Effect)
 import Screeps.Constants (structure_spawn)
-import Screeps.Structure (unsafeCast)
-import Screeps.Types (BodyPartType, Creep, ReturnCode, Spawn, Structure)
 import Screeps.FFI (NullOrUndefined, runThisEffFn1, runThisEffFn2, runThisFn1, toMaybe, toNullable, unsafeField)
+import Screeps.Structure (unsafeCast)
+import Screeps.Types (BodyPartType, Creep, CreepRole(..), ReturnCode, Spawn, Structure)
 
 type CreepInfo =
   { name :: String
@@ -58,6 +58,16 @@ createCreep spawn parts = createCreepImpl spawn parts Left Right
 
 createCreep' :: forall mem e. (EncodeJson mem) => Spawn -> Array BodyPartType -> Maybe String -> mem -> Effect (Either ReturnCode String)
 createCreep' spawn parts name' mem = createCreepPrimeImpl spawn parts (toNullable name') (encodeJson mem) Left Right
+
+createCreepInRole :: forall e. Spawn -> Array BodyPartType -> CreepRole -> Effect (Either ReturnCode String)
+createCreepInRole spawn parts role = 
+  let 
+    mem = 
+      case role of
+        Harvester -> {role: "\"Harvester\""}
+        Builder -> {role: "\"Builder\""}
+        Upgrader -> {role: "\"Upgrader\""}
+  in createCreep' spawn parts Nothing mem
 
 recycleCreep :: forall e. Spawn -> Creep -> Effect ReturnCode
 recycleCreep = runThisEffFn1 "recycleCreep"

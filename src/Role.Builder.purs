@@ -30,8 +30,7 @@ runBuilder creep = do
   creepIsBuilding <- getMemory creep "working"
   case creepIsBuilding of
     Left e -> 
-      do
-        log e
+      do setMemory creep "working" "\"false\""
     Right isBuilding ->
       case isBuilding of
         "true" -> 
