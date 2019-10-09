@@ -2,15 +2,10 @@
 module Screeps.Types where
 
 import Prelude
-
-import Data.Argonaut.Decode (class DecodeJson, decodeJson)
-import Data.Argonaut.Encode (class EncodeJson, encodeJson)
 import Data.Generic.Rep (class Generic)
-import Data.Generic.Rep.Eq (genericEq)
 import Data.Generic.Rep.Show (genericShow)
+import Data.Generic.Rep.Eq (genericEq)
 import Data.Map.Internal (Map)
-import Data.Maybe (Maybe(..))
-import Foreign.Object as StrMap
 
 foreign import data GameGlobal :: Type
 
@@ -165,23 +160,3 @@ data FindContext a =
   OfType (FindType a) |
   OfObj (Array a) | -- should be RoomObject a
   OfPos (Array RoomPosition)
-
-data CreepRole = 
-  Harvester |
-  Builder |
-  Upgrader
-
-creepRoleToString :: CreepRole -> String
-creepRoleToString role =
-  case role of
-    Harvester -> "Harvester"
-    Upgrader -> "Upgrader"
-    Builder -> "Builder"
-
-stringToCreepRole :: String -> Maybe CreepRole
-stringToCreepRole roleString =
-  case roleString of
-    "Harvester" -> Just Harvester
-    "Upgrader" -> Just Upgrader 
-    "Builder" -> Just Builder
-    _ -> Nothing
