@@ -6,6 +6,8 @@ import CreepRoles (CreepMemory(..), Role(..), UnknownCreepType(..), VocationalCr
 import Data.Array (fromFoldable, length, mapMaybe)
 import Data.Either (Either(..))
 import Data.Foldable (for_)
+import Data.Int (toNumber)
+import Data.List (List(..), (:))
 import Data.Maybe (Maybe(..))
 import Data.Traversable (for)
 import Effect (Effect)
@@ -40,8 +42,15 @@ runCreepRole creep = classifyCreep creep >>= matchUnit
 spawnNewCreeps :: Spawn -> Effect Unit
 spawnNewCreeps spawn =
   let 
-    minHarvesters = 2
-    minBuilder = 2
+    minHarvesters = 3
+    minBuilders = 2
+    minUpgraders = 2
+    maxHarvesters = 20
+    maxBuilders = 10
+    maxUpgraders = 10
+    desiredHarvesterRatio = 0.50
+    desiredBuilderRatio = 0.25
+    desiredUpgraderRatio = 0.25
   in 
     do
       thisGame <- getGameGlobal
@@ -58,21 +67,40 @@ spawnNewCreeps spawn =
           (Right (Builder b)) -> Just b
           _ -> Nothing)
 
-      if ((length harvesters) < minHarvesters) then
-        spawnCreep spawn 
+      if 
+        (length harvesters) < minHarvesters  
+        || (toNumber (length harvesters) / toNumber (length creepsAndRoles) < desiredHarvesterRatio 
+            && (length harvesters) < maxHarvesters)
+      then do
+        newCreep <- spawnCreep spawn 
           [part_move, part_work, part_work, part_carry] noName 
           (HarvesterMemory {role: HarvesterRole})
-        >>= logShow
-      else if ((length builders) < minBuilder) then
-        spawnCreep spawn 
+        case newCreep of
+          Right creep -> log $ "Spawned Harvester: " <> show creep
+          Left _ -> logShow newCreep
+      else if 
+        (length builders) < minBuilders  
+        || (toNumber (length builders) / toNumber (length creepsAndRoles) < desiredBuilderRatio 
+            && (length builders) < maxBuilders)
+      then do
+        newCreep <- spawnCreep spawn 
           [part_move, part_move, part_work, part_carry] noName 
           (BuilderMemory {role: BuilderRole, working: true})
-        >>= logShow
-      else 
-        spawnCreep spawn 
+        case newCreep of
+          Right creep -> log $ "Spawned Builder: " <> show creep
+          Left _ -> logShow newCreep
+      else if 
+        (length upgraders) < minUpgraders  
+        || (toNumber (length upgraders) / toNumber (length creepsAndRoles) < desiredUpgraderRatio 
+            && (length upgraders) < maxUpgraders)
+      then do
+        newCreep <- spawnCreep spawn 
           [part_move, part_work, part_work, part_carry] noName 
           (UpgraderMemory {role: UpgraderRole, working: true})
-        >>= logShow
+        case newCreep of
+          Right creep -> log $ "Spawned Upgrader: " <> show creep
+          Left _ -> logShow newCreep
+      else pure unit
             
 
 loop :: Effect Unit
