@@ -20,6 +20,7 @@ import Data.Bifunctor (bimap)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe)
 import Effect (Effect)
+import Effect.Console (log)
 import Screeps.Creep (getMemory)
 import Screeps.Spawn (createCreep')
 import Screeps.Types (BodyPartType, Creep, ReturnCode, Spawn)
@@ -29,6 +30,12 @@ data Role
   = HarvesterRole
   | BuilderRole
   | UpgraderRole
+
+instance showRole :: Show Role where
+  show HarvesterRole = "harvester"
+  show BuilderRole = "builder"
+  show UpgraderRole = "upgrader"
+    
 
 instance encodeRole :: EncodeJson Role where
   encodeJson HarvesterRole = JSON.fromString "\"Harvester\""
@@ -71,11 +78,15 @@ classifyCreep creep = do
     Right HarvesterRole -> pure $ Right $ Harvester { creep, mem: { role: HarvesterRole } }
     Right BuilderRole -> do 
       isWorking <- getMemory creep "working"
+      log $ "grabbed isWorking: " <> show isWorking
+
       pure $ bimap (UnknownCreepType) 
         (\working -> Builder { creep, mem: { role: BuilderRole, working } })
         isWorking
     Right UpgraderRole -> do
       isWorking <- getMemory creep "working"
+      log $ "grabbed isWorking: " <> show isWorking
+
       pure $ bimap (UnknownCreepType)
         (\working -> Upgrader { creep, mem: { role: UpgraderRole, working } })
         isWorking

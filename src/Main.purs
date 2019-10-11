@@ -11,7 +11,6 @@ import Data.Traversable (for)
 import Effect (Effect)
 import Effect.Class.Console (logShow)
 import Effect.Console (log)
-import Foreign.Object (isEmpty)
 import Role.Builder (runBuilder)
 import Role.Harvester (runHarvester)
 import Role.Upgrader (runUpgrader)
@@ -41,7 +40,7 @@ runCreepRole creep = classifyCreep creep >>= matchUnit
 spawnNewCreeps :: Spawn -> Effect Unit
 spawnNewCreeps spawn =
   let 
-    minHarvesters = 5
+    minHarvesters = 2
     minBuilder = 2
   in 
     do
@@ -79,13 +78,6 @@ spawnNewCreeps spawn =
 loop :: Effect Unit
 loop = do
   game <- getGameGlobal
-  if (isEmpty (creeps game)) then
-    for_ (spawns game) \spawn ->
-      spawnCreep spawn 
-        [part_move, part_move, part_work, part_carry] noName 
-        (HarvesterMemory {role: HarvesterRole})
-  else  
-    pure unit
 
   for_ (spawns game) \spawn -> do
     if canCreateCreep spawn [part_move, part_work, part_work, part_carry] == ok
