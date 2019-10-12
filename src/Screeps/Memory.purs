@@ -41,5 +41,5 @@ setRaw' = runThisEffFn1 "set"
 fromJson :: forall a. (DecodeJson a) => String -> (Either String a)
 fromJson jsonStr = jsonParser jsonStr >>= decodeJson
 
-toJson :: forall a. (EncodeJson a) => a -> Json
+toJson :: forall a. EncodeJson a => a -> Json
 toJson = encodeJson
