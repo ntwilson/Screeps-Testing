@@ -2,7 +2,8 @@ module Main (loop) where
 
 import Prelude
 
-import CreepRoles (CreepMemory(..), Role(..), UnknownCreepType(..), VocationalCreep(..), classifyCreep, spawnCreep)
+import CreepClassification (CreepMemory(..), UnknownCreepType(..), VocationalCreep(..), classifyCreep, spawnCreep)
+import CreepRoles (Role(..))
 import Data.Array (fromFoldable, length, mapMaybe)
 import Data.Either (Either(..))
 import Data.Foldable (for_)
@@ -84,7 +85,7 @@ spawnNewCreeps spawn =
             && (length builders) < maxBuilders)
       then do
         newCreep <- spawnCreep spawn 
-          [part_move, part_move, part_work, part_carry] noName 
+          [part_move, part_work, part_work, part_carry] noName 
           (BuilderMemory {role: BuilderRole, working: true})
         case newCreep of
           Right creep -> log $ "Spawned Builder: " <> show creep
