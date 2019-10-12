@@ -10,11 +10,10 @@ import Prelude
 import CreepRoles (Role(..))
 import Data.Argonaut (class DecodeJson, class EncodeJson, decodeJson, encodeJson)
 import Data.Argonaut as JSON
-import Data.Bifunctor (lmap)
-import Data.Either (Either(..), note)
+import Data.Either (Either(..))
 import Data.Maybe (Maybe)
 import Effect (Effect)
-import Foreign.Object as Object
+
 import Role.Builder (BuilderMemory, Builder)
 import Role.Harvester (HarvesterMemory, Harvester)
 import Role.Upgrader (UpgraderMemory, Upgrader)
@@ -33,17 +32,13 @@ instance encodeCreepMemory :: EncodeJson CreepMemory where
   encodeJson (UpgraderMemory mem) = encodeJson mem 
 
 instance decodeCreepMemory :: DecodeJson CreepMemory where
-  decodeJson json = lmap (\err -> "Unable to decode creep memory: " <> JSON.stringify json <> ". " <> err) do
-    memObj <- JSON.toObject json # note "memory isn't an object?"
-    role <- (Object.lookup "role" memObj # note "memory isn't given a role") >>= decodeJson
-    case role of 
-      HarvesterRole -> pure $ HarvesterMemory { role }
-      UpgraderRole -> do
-        working <- (Object.lookup "working" memObj >>= JSON.toBoolean) # note "Upgrader memory doesn't have a 'working' field"
-        pure $ UpgraderMemory { role, working }
-      BuilderRole -> do
-        working <- (Object.lookup "working" memObj >>= JSON.toBoolean) # note "Builder memory doesn't have a 'working' field"
-        pure $ BuilderMemory { role, working }
+  decodeJson json = go
+    where
+      go
+        | Right (mem@{role: HarvesterRole}) <- decodeJson json = pure $ HarvesterMemory mem
+        | Right (mem@{role: UpgraderRole}) <- decodeJson json = pure $ UpgraderMemory mem
+        | Right (mem@{role: BuilderRole}) <- decodeJson json = pure $ BuilderMemory mem
+        | otherwise = Left $ "Unable to decode creep memory: " <> JSON.stringify json
 
 data VocationalCreep = Harvester Harvester | Builder Builder | Upgrader Upgrader
 

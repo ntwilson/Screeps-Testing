@@ -66,7 +66,7 @@ spawnNewCreeps spawn =
         >>= logShow
       else if ((length builders) < minBuilder) then
         spawnCreep spawn 
-          [part_move, part_move, part_work, part_carry] noName 
+          [part_move, part_work, part_work, part_carry] noName 
           (BuilderMemory {role: BuilderRole, working: true})
         >>= logShow
       else 
