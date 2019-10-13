@@ -51,11 +51,11 @@ energyBudget { nCreeps, totalCapacity } =
   min desiredBudget totalCapacity
   where 
     desiredBudget
-      | nCreeps <= 4 = 200
-      | nCreeps <= 7 = 300 -- max for room level 1
-      | nCreeps <= 10 = 400
-      | nCreeps <= 12 = 500 -- max for room level 2 
-      | nCreeps <= 15 = 800 -- max for room level 3
+      | nCreeps < 4 = 200
+      | nCreeps < 7 = 300 -- max for room level 1
+      | nCreeps < 10 = 400
+      | nCreeps < 12 = 500 -- max for room level 2 
+      | nCreeps < 15 = 800 -- max for room level 3
       | otherwise = 1000
 
 
@@ -137,6 +137,7 @@ loop :: Effect Unit
 loop = do
   game <- getGameGlobal
   let nCreeps = creeps game # size
+  
   
   for_ (spawns game) \spawn -> do
     let 

@@ -22,14 +22,15 @@ import Util (ignoreM)
 
 constructionPlans :: Array (Array BodyPartType)
 constructionPlans =
-  [ [ part_move, part_move, part_move, part_move, part_carry, part_carry, part_carry, part_carry, part_work, part_work, part_work, part_work]
-  , [ part_move, part_move, part_move, part_carry, part_carry, part_carry, part_work, part_work, part_work]
-  , [ part_move, part_move, part_carry, part_carry, part_work, part_work, part_work, part_work ]
-  , [ part_move, part_move, part_carry, part_carry, part_work, part_work, part_work ]
-  , [ part_move, part_move, part_carry, part_carry, part_work, part_work ]
-  , [ part_move, part_move, part_carry, part_work, part_work ]
-  , [ part_move, part_carry, part_work, part_work ]
-  , [ part_move, part_carry, part_work ] 
+  [ [ part_move, part_move, part_move, part_move, part_carry, part_carry, part_carry, part_carry, part_work, part_work, part_work, part_work] -- 800
+  , [ part_move, part_move, part_move, part_carry, part_carry, part_carry, part_work, part_work, part_work] -- 600
+  , [ part_move, part_move, part_move, part_carry, part_carry, part_work, part_work, part_work ] -- 550 (5 extensions)
+  , [ part_move, part_move, part_carry, part_carry, part_work, part_work, part_work ] -- 500
+  , [ part_move, part_move, part_carry, part_carry, part_carry, part_work, part_work ] -- 450
+  , [ part_move, part_move, part_carry, part_carry, part_work, part_work ] -- 400
+  , [ part_move, part_move, part_carry, part_work, part_work ] -- 350
+  , [ part_move, part_carry, part_work, part_work ] -- 300 (just the spawn)
+  , [ part_move, part_carry, part_work ] -- 200
   ]
 
 data Job = Upgrading | Harvesting
