@@ -1,4 +1,4 @@
-module Role.Upgrader (runUpgrader, UpgraderMemory, Upgrader) where
+module Role.Upgrader (runUpgrader, UpgraderMemory, Upgrader, constructionPlans) where
 
 import Prelude
 
@@ -6,19 +6,23 @@ import CreepRoles (Role)
 import Data.Array (head)
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
-import Screeps (err_not_in_range, find_sources, resource_energy)
+import Screeps (err_not_in_range, find_sources, part_carry, part_move, part_work, resource_energy)
 import Screeps.Creep (amtCarrying, carryCapacity, harvestSource, moveTo, say, setAllMemory, upgradeController)
 import Screeps.Game (getGameGlobal)
 import Screeps.Room (find, controller)
 import Screeps.RoomObject (room)
-import Screeps.Types (TargetPosition(..), Creep)
+import Screeps.Types (BodyPartType, Creep, TargetPosition(..))
+import Util (ignoreM)
 
-ignore :: forall a. a -> Unit
-ignore _ = unit
-
-ignoreM :: forall m a. Monad m => m a -> m Unit
-ignoreM m = m <#> ignore 
-
+constructionPlans :: Array (Array BodyPartType)
+constructionPlans =
+  [ [ part_move, part_move, part_move, part_move, part_carry, part_carry, part_carry, part_carry, part_work, part_work, part_work, part_work]
+  , [ part_move, part_move, part_move, part_carry, part_carry, part_carry, part_work, part_work, part_work]
+  , [ part_move, part_move, part_carry, part_carry, part_carry, part_carry, part_work, part_work ]
+  , [ part_move, part_move, part_carry, part_carry, part_work, part_work ]
+  , [ part_move, part_carry, part_carry, part_work ]
+  , [ part_move, part_carry, part_work ] 
+  ]
 
 type UpgraderMemory = { role :: Role, working :: Boolean }
 type Upgrader = { creep :: Creep, mem :: UpgraderMemory }
@@ -33,29 +37,29 @@ runUpgrader upgrader@{ creep, mem } =
   then
     if amtCarrying creep resource_energy == 0
     then do
-      s <- say creep "Harvesting"
+      _ <- creep `say` "Harvesting"
       setMemory upgrader (mem { working = false })
     else do
       game <- getGameGlobal
       case (controller (room creep)) of
-        Nothing -> pure unit
+        Nothing -> creep `say` "I'm stuck" # ignoreM
         Just controller -> do
-          upgradeResult <- upgradeController creep controller
+          upgradeResult <- creep `upgradeController` controller
           if upgradeResult == err_not_in_range
-          then moveTo creep (TargetObj controller) # ignoreM
+          then creep `moveTo` (TargetObj controller) # ignoreM
           else pure unit
 
   else 
-    if amtCarrying creep resource_energy == carryCapacity creep
+    if creep `amtCarrying` resource_energy == carryCapacity creep
     then do
-      s <- say creep "Upgrading"
+      _ <- creep `say` "Upgrading"
       setMemory upgrader (mem { working = true }) 
     else
       case head (find (room creep) find_sources) of
-        Nothing -> pure unit
+        Nothing -> creep `say` "I'm stuck" # ignoreM
         Just targetSource -> do
-          harvestResult <- harvestSource creep targetSource
+          harvestResult <- creep `harvestSource` targetSource
           if harvestResult == err_not_in_range
-          then moveTo creep (TargetObj targetSource) # ignoreM
+          then creep `moveTo` (TargetObj targetSource) # ignoreM
           else pure unit
         
