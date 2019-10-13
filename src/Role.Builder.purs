@@ -25,9 +25,9 @@ constructionPlans :: Array (Array BodyPartType)
 constructionPlans =
   [ [ part_move, part_move, part_move, part_move, part_carry, part_carry, part_carry, part_carry, part_work, part_work, part_work, part_work]
   , [ part_move, part_move, part_move, part_carry, part_carry, part_carry, part_work, part_work, part_work]
-  , [ part_move, part_move, part_carry, part_carry, part_carry, part_carry, part_work, part_work ]
+  , [ part_move, part_move, part_carry, part_carry, part_work, part_work, part_work, part_work ]
   , [ part_move, part_move, part_carry, part_carry, part_work, part_work ]
-  , [ part_move, part_carry, part_carry, part_work ]
+  , [ part_move, part_carry, part_work, part_work ]
   , [ part_move, part_carry, part_work ] 
   ]
 
