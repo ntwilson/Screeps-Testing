@@ -13,11 +13,12 @@ import Data.Array (head)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
-import Screeps (err_not_in_range, find_construction_sites, find_sources, part_carry, part_move, part_work, resource_energy)
+import Screeps (err_not_in_range, find_construction_sites, find_sources_active, part_carry, part_move, part_work, resource_energy)
 import Screeps.Creep (amtCarrying, build, carryCapacity, harvestSource, moveTo, say, setAllMemory)
 import Screeps.Room (find)
-import Screeps.RoomObject (room)
-import Screeps.Types (BodyPartType, Creep, TargetPosition(..))
+import Screeps.RoomObject (pos, room)
+import Screeps.RoomPosition (findClosestByPath)
+import Screeps.Types (BodyPartType, Creep, FindContext(..), TargetPosition(..))
 import Util (ignoreM)
 
 
@@ -26,7 +27,9 @@ constructionPlans =
   [ [ part_move, part_move, part_move, part_move, part_carry, part_carry, part_carry, part_carry, part_work, part_work, part_work, part_work]
   , [ part_move, part_move, part_move, part_carry, part_carry, part_carry, part_work, part_work, part_work]
   , [ part_move, part_move, part_carry, part_carry, part_work, part_work, part_work, part_work ]
+  , [ part_move, part_move, part_carry, part_carry, part_work, part_work, part_work ]
   , [ part_move, part_move, part_carry, part_carry, part_work, part_work ]
+  , [ part_move, part_move, part_carry, part_work, part_work ]
   , [ part_move, part_carry, part_work, part_work ]
   , [ part_move, part_carry, part_work ] 
   ]
@@ -73,7 +76,8 @@ runBuilder builder@{ creep, mem } = do
         _ <- say creep "building"
         setMemory builder (mem { job = Building })
       else do
-        case head (find (room creep) find_sources) of
+        closestSource <- findClosestByPath (pos creep) (OfType find_sources_active) 
+        case closestSource of
           Nothing -> creep `say` "I'm stuck" # ignoreM
           Just targetSite -> do
             harvest <- creep `harvestSource` targetSite

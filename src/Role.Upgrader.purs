@@ -9,16 +9,15 @@ import Prelude
 
 import CreepRoles (Role)
 import Data.Argonaut (class DecodeJson, class EncodeJson, fromString, stringify, toString)
-import Data.Array (head)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
-import Screeps (err_not_in_range, find_sources, part_carry, part_move, part_work, resource_energy)
+import Screeps (err_not_in_range, find_sources_active, part_carry, part_move, part_work, resource_energy)
 import Screeps.Creep (amtCarrying, carryCapacity, harvestSource, moveTo, say, setAllMemory, upgradeController)
-import Screeps.Game (getGameGlobal)
-import Screeps.Room (find, controller)
-import Screeps.RoomObject (room)
-import Screeps.Types (BodyPartType, Creep, TargetPosition(..))
+import Screeps.Room (controller)
+import Screeps.RoomObject (pos, room)
+import Screeps.RoomPosition (findClosestByPath)
+import Screeps.Types (BodyPartType, Creep, FindContext(..), TargetPosition(..))
 import Util (ignoreM)
 
 constructionPlans :: Array (Array BodyPartType)
@@ -26,7 +25,9 @@ constructionPlans =
   [ [ part_move, part_move, part_move, part_move, part_carry, part_carry, part_carry, part_carry, part_work, part_work, part_work, part_work]
   , [ part_move, part_move, part_move, part_carry, part_carry, part_carry, part_work, part_work, part_work]
   , [ part_move, part_move, part_carry, part_carry, part_work, part_work, part_work, part_work ]
+  , [ part_move, part_move, part_carry, part_carry, part_work, part_work, part_work ]
   , [ part_move, part_move, part_carry, part_carry, part_work, part_work ]
+  , [ part_move, part_move, part_carry, part_work, part_work ]
   , [ part_move, part_carry, part_work, part_work ]
   , [ part_move, part_carry, part_work ] 
   ]
@@ -58,7 +59,6 @@ runUpgrader upgrader@{ creep, mem } =
         _ <- creep `say` "harvesting"
         setMemory upgrader (mem { job = Harvesting })
       else do
-        game <- getGameGlobal
         case (controller (room creep)) of
           Nothing -> creep `say` "I'm stuck" # ignoreM
           Just controller -> do
@@ -72,8 +72,9 @@ runUpgrader upgrader@{ creep, mem } =
       then do
         _ <- creep `say` "upgrading"
         setMemory upgrader (mem { job = Upgrading }) 
-      else
-        case head (find (room creep) find_sources) of
+      else do
+        closestSource <- findClosestByPath (pos creep) (OfType find_sources_active) 
+        case closestSource of
           Nothing -> creep `say` "I'm stuck" # ignoreM
           Just targetSource -> do
             harvestResult <- creep `harvestSource` targetSource
