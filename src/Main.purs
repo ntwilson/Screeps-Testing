@@ -21,11 +21,12 @@ import Role.Harvester (runHarvester)
 import Role.Harvester as Harvester
 import Role.Upgrader (runUpgrader)
 import Role.Upgrader as Upgrader
+import Screeps (structure_extension, structure_road)
 import Screeps.Controller (level)
-import Screeps.Game (creeps, getGameGlobal, spawns)
-import Screeps.Room (controller, energyAvailable, energyCapacityAvailable)
+import Screeps.Game (constructionSites, creeps, getGameGlobal, spawns)
+import Screeps.Room (controller, createConstructionSite, energyAvailable, energyCapacityAvailable)
 import Screeps.RoomObject (room)
-import Screeps.Types (BodyPartType, Creep, Spawn)
+import Screeps.Types (BodyPartType, Creep, Room, Spawn, TargetPosition(..))
 import Util (bodyPartCost, (<<#>>))
 
 ignore :: forall a. a -> Unit
@@ -68,6 +69,39 @@ constructionPlan plans budget =
       # Array.find (\(Tuple plan cost) -> cost <= budget)
       <#> (\(Tuple plan _cost) -> plan) 
   in fromMaybe [] maybePlan
+
+
+-- NOTE: this is an ordered set.  Builders will build each structure
+-- in the order listed here.
+createConstructionSitesL1 :: Room -> Effect Unit
+createConstructionSitesL1 room = 
+  let 
+    constructionSites = 
+      [ { loc: (TargetPt 42 43), structure: structure_road }
+      , { loc: (TargetPt 41 42), structure: structure_road }
+      , { loc: (TargetPt 40 41), structure: structure_road }
+      , { loc: (TargetPt 41 43), structure: structure_road }
+      , { loc: (TargetPt 42 42), structure: structure_road }
+      ]
+  in
+    for_ constructionSites $ \{ loc, structure } -> createConstructionSite room loc structure
+
+createConstructionSitesL2 :: Room -> Effect Unit
+createConstructionSitesL2 room =
+  let 
+    constructionSites =
+      [ { loc: (TargetPt 36 39), structure: structure_extension }
+      , { loc: (TargetPt 29 27), structure: structure_extension }
+      , { loc: (TargetPt 39 41), structure: structure_road }
+      , { loc: (TargetPt 40 40), structure: structure_road }
+      , { loc: (TargetPt 40 42), structure: structure_road }
+      , { loc: (TargetPt 41 41), structure: structure_road }
+      , { loc: (TargetPt 30 28), structure: structure_extension }
+      , { loc: (TargetPt 38 38), structure: structure_extension }
+      , { loc: (TargetPt 40 37), structure: structure_extension }
+      ]
+  in 
+    for_ constructionSites $ \{ loc, structure } -> createConstructionSite room loc structure
 
 
 spawnNewCreeps :: Spawn -> Int -> Int -> Effect Unit
@@ -144,9 +178,13 @@ loop = do
       totalCapacity = energyCapacityAvailable (room spawn)
       budget = energyBudget { nCreeps, totalCapacity }
       controllerLevel = controller (room spawn) <#> level # fromMaybe 0
+
     if energyAvailable (room spawn) >= budget
     then spawnNewCreeps spawn budget controllerLevel
     else pure unit
+
+    if (constructionSites game # size) == 0 then createConstructionSitesL1 (room spawn) else pure unit
+    if controllerLevel == 2 && (constructionSites game # size) == 0 then createConstructionSitesL2 (room spawn) else pure unit
 
   for_ (creeps game) \n -> do
     runCreepRole n
