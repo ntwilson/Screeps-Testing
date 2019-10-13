@@ -21,10 +21,9 @@ import Role.Harvester (runHarvester)
 import Role.Harvester as Harvester
 import Role.Upgrader (runUpgrader)
 import Role.Upgrader as Upgrader
-import Screeps.Constants (find_my_structures)
 import Screeps.Controller (level)
 import Screeps.Game (creeps, getGameGlobal, spawns)
-import Screeps.Room (controller, energyAvailable, energyCapacityAvailable, find)
+import Screeps.Room (controller, energyAvailable, energyCapacityAvailable)
 import Screeps.RoomObject (room)
 import Screeps.Types (BodyPartType, Creep, Spawn)
 import Util (bodyPartCost, (<<#>>))
@@ -114,21 +113,21 @@ spawnNewCreeps spawn budget controllerLevel = do
   where
     spawnHarvester = do
       let plan = constructionPlan Harvester.constructionPlans budget
-      newCreep <- spawnCreep spawn plan noName (HarvesterMemory {role: HarvesterRole})
+      newCreep <- spawnCreep spawn plan noName (HarvesterMemory {role: HarvesterRole, job: Harvester.Harvesting})
       case newCreep of
         Right creep -> log $ "Spawned Harvester " <> show plan <> ": " <> show creep
         Left errCode -> log $ "couldn't create harvester with plan: " <> show plan <> ". Error code: " <> show errCode
 
     spawnUpgrader = do
       let plan = constructionPlan Upgrader.constructionPlans budget
-      newCreep <- spawnCreep spawn plan noName (UpgraderMemory {role: UpgraderRole, working: false})
+      newCreep <- spawnCreep spawn plan noName (UpgraderMemory {role: UpgraderRole, job: Upgrader.Harvesting})
       case newCreep of
         Right creep -> log $ "Spawned Upgrader " <> show plan <> ": " <> show creep
         Left errCode -> log $ "couldn't create upgrader with plan: " <> show plan <> ". Error code: " <> show errCode
 
     spawnBuilder = do
       let plan = constructionPlan Builder.constructionPlans budget
-      newCreep <- spawnCreep spawn plan noName (BuilderMemory {role: BuilderRole, working: false})
+      newCreep <- spawnCreep spawn plan noName (BuilderMemory {role: BuilderRole, job: Builder.Harvesting})
       case newCreep of
         Right creep -> log $ "Spawned Builder " <> show plan <> ": " <> show creep
         Left errCode -> log $ "couldn't create builder with plan: " <> show plan <> ". Error code: " <> show errCode
@@ -137,12 +136,10 @@ spawnNewCreeps spawn budget controllerLevel = do
 loop :: Effect Unit
 loop = do
   game <- getGameGlobal
-  let
-    nCreeps = creeps game # size
+  let nCreeps = creeps game # size
   
   for_ (spawns game) \spawn -> do
     let 
-      myStructs = find (room spawn) find_my_structures 
       totalCapacity = energyCapacityAvailable (room spawn)
       budget = energyBudget { nCreeps, totalCapacity }
       controllerLevel = controller (room spawn) <#> level # fromMaybe 0

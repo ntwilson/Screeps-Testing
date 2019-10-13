@@ -1,9 +1,16 @@
-module Role.Builder (runBuilder, BuilderMemory, Builder, constructionPlans) where
+module Role.Builder 
+  ( runBuilder
+  , Job(..)
+  , BuilderMemory
+  , Builder
+  , constructionPlans) where
 
 import Prelude
 
 import CreepRoles (Role)
+import Data.Argonaut (class DecodeJson, class EncodeJson, fromString, stringify, toString)
 import Data.Array (head)
+import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Screeps (err_not_in_range, find_construction_sites, find_sources, part_carry, part_move, part_work, resource_energy)
@@ -24,8 +31,19 @@ constructionPlans =
   , [ part_move, part_carry, part_work ] 
   ]
 
-type BuilderMemory = { role :: Role, working :: Boolean }
+data Job = Building | Harvesting
+type BuilderMemory = { role :: Role, job :: Job }
 type Builder = { creep :: Creep, mem :: BuilderMemory }
+
+instance encodeJobJson :: EncodeJson Job where
+  encodeJson Building   = fromString "building"
+  encodeJson Harvesting = fromString "harvesting"
+
+instance decodeJobJson :: DecodeJson Job where
+  decodeJson json 
+    | Just "building" <- toString json   = Right Building
+    | Just "harvesting" <- toString json = Right Harvesting 
+    | otherwise = Left $ "Unable to recognize builder job: " <> stringify json
 
 setMemory :: Builder -> BuilderMemory -> Effect Unit
 setMemory {creep} mem = setAllMemory creep mem 
@@ -33,32 +51,34 @@ setMemory {creep} mem = setAllMemory creep mem
 runBuilder :: Builder -> Effect Unit
 runBuilder builder@{ creep, mem } = do
 
-  if mem.working
-  then do
-    if (creep `amtCarrying` resource_energy) == 0 
-    then do
-      _ <- say creep "Harvesting"
-      setMemory builder (mem { working = false })
-    else
-      case head (find (room creep) find_construction_sites) of
-        Nothing -> creep `say` "I'm stuck" # ignoreM
-        Just targetSite -> do
-          buildResult <- creep `build` targetSite
-          if buildResult == err_not_in_range 
-          then creep `moveTo` (TargetObj targetSite) # ignoreM
-          else pure unit
-  else do
-    if (creep `amtCarrying` resource_energy) == (carryCapacity creep)
-    then do
-      _ <- say creep "working"
-      setMemory builder (mem { working = true })
-    else do
-      case head (find (room creep) find_sources) of
-        Nothing -> creep `say` "I'm stuck" # ignoreM
-        Just targetSite -> do
-          harvest <- creep `harvestSource` targetSite
-          if harvest == err_not_in_range 
-          then creep `moveTo` (TargetObj targetSite) # ignoreM
-          else pure unit
-              
+  case mem.job of
+    Building ->
+      if creep `amtCarrying` resource_energy == 0 
+      then do
+        _ <- say creep "harvesting"
+        setMemory builder (mem { job = Harvesting })
+      else
+        case head (find (room creep) find_construction_sites) of
+          Nothing -> creep `say` "I'm stuck" # ignoreM
+          Just targetSite -> do
+            buildResult <- creep `build` targetSite
+            if buildResult == err_not_in_range 
+            then creep `moveTo` (TargetObj targetSite) # ignoreM
+            else pure unit
+
+
+    Harvesting ->
+      if creep `amtCarrying` resource_energy == carryCapacity creep
+      then do
+        _ <- say creep "building"
+        setMemory builder (mem { job = Building })
+      else do
+        case head (find (room creep) find_sources) of
+          Nothing -> creep `say` "I'm stuck" # ignoreM
+          Just targetSite -> do
+            harvest <- creep `harvestSource` targetSite
+            if harvest == err_not_in_range 
+            then creep `moveTo` (TargetObj targetSite) # ignoreM
+            else pure unit
+                
 
