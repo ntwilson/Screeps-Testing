@@ -53,11 +53,12 @@ shouldSpawnCreep { nCreeps, totalCapacity } =
   where
     minBudget 
       | nCreeps <= 5 = 300 -- max for room level 1
-      | nCreeps <= 8 = 350
-      | nCreeps <= 10 = 400 -- max for room level 2 
-      | nCreeps <= 15 = 600 -- max for room level 3
-      | nCreeps <= 18 = 800 
-      | otherwise = 1000
+      | nCreeps <= 7 = 350
+      | nCreeps <= 9 = 400
+      | nCreeps <= 12 = 550 -- max for room level 2 
+      | nCreeps <= 15 = 600 
+      | nCreeps <= 18 = 800 -- max for room level 3
+      | otherwise = 10000
     
 
 constructionPlan :: Array (Array BodyPartType) -> Int -> Array BodyPartType
