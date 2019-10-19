@@ -8,6 +8,7 @@ module Role.Builder
 import Prelude
 
 import CreepRoles (Role)
+import CreepTasks (buildNextConstructionSite, harvestEnergy, upgradeNearestController)
 import Data.Argonaut (class DecodeJson, class EncodeJson, fromString, stringify, toString)
 import Data.Array (head)
 import Data.Either (Either(..))
@@ -61,29 +62,12 @@ runBuilder builder@{ creep, mem } = do
       then do
         _ <- say creep "harvesting"
         setMemory builder (mem { job = Harvesting })
-      else
-        case head (find (room creep) find_construction_sites) of
-          Nothing -> creep `say` "I'm stuck" # ignoreM
-          Just targetSite -> do
-            buildResult <- creep `build` targetSite
-            if buildResult == err_not_in_range 
-            then creep `moveTo` (TargetObj targetSite) # ignoreM
-            else pure unit
-
+      else buildNextConstructionSite creep
 
     Harvesting ->
       if creep `amtCarrying` resource_energy == carryCapacity creep
       then do
         _ <- say creep "building"
         setMemory builder (mem { job = Building })
-      else do
-        closestSource <- findClosestByPath (pos creep) (OfType find_sources_active) 
-        case closestSource of
-          Nothing -> creep `say` "I'm stuck" # ignoreM
-          Just targetSite -> do
-            harvest <- creep `harvestSource` targetSite
-            if harvest == err_not_in_range 
-            then creep `moveTo` (TargetObj targetSite) # ignoreM
-            else pure unit
-                
+      else harvestEnergy creep                
 

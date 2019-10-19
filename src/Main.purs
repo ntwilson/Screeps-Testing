@@ -123,20 +123,18 @@ spawnNewCreeps spawn budget controllerLevel = do
 
     minHarvesters = 3
     minBuilders = 2
-    minUpgraders = 2
+    minUpgraders = 1
     ratios
-      | controllerLevel < 2 = { desiredHarvesterRatio: 0.6, desiredBuilderRatio: 0.1, desiredUpgraderRatio: 0.3 }
-      | controllerLevel == 2 = { desiredHarvesterRatio: 0.3, desiredBuilderRatio: 0.4, desiredUpgraderRatio: 0.3 }
-      | otherwise = { desiredHarvesterRatio: 0.3, desiredBuilderRatio: 0.3, desiredUpgraderRatio: 0.4 }
-    { desiredHarvesterRatio, desiredBuilderRatio, desiredUpgraderRatio } = ratios
+      | controllerLevel < 2 = { desiredHarvesterRatio: 0.6, desiredBuilderRatio: 0.4 }
+      | controllerLevel == 2 = { desiredHarvesterRatio: 0.4, desiredBuilderRatio: 0.6 }
+      | otherwise = { desiredHarvesterRatio: 0.3, desiredBuilderRatio: 0.7 }
+    { desiredHarvesterRatio, desiredBuilderRatio } = ratios
 
   if 
     (length harvesters) < minHarvesters  
     || toNumber (length harvesters) / toNumber (length creepsAndRoles) < desiredHarvesterRatio 
   then spawnHarvester
-  else if 
-    (length upgraders) < minUpgraders  
-    || toNumber (length upgraders) / toNumber (length creepsAndRoles) < desiredUpgraderRatio 
+  else if (length upgraders) < minUpgraders  
   then spawnUpgrader
   else if 
     (length builders) < minBuilders  
