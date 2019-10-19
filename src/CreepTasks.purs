@@ -1,4 +1,8 @@
-module CreepTasks where
+module CreepTasks 
+  ( upgradeNearestController
+  , harvestEnergy
+  , buildNextConstructionSite
+  , deliverToClosestStructure) where
 
 import Prelude
 
@@ -47,7 +51,7 @@ deliverToClosestStructure creep = do
       if transferResult == err_not_in_range
       then creep `moveTo` (TargetObj spawn) # ignoreM
       else pure unit
-    Nothing -> creep `say` "I'm stuck." # ignoreM
+    Nothing -> buildNextConstructionSite creep
 
   where
     structureFilter :: Maybe (Spawn -> Boolean)
@@ -60,9 +64,7 @@ deliverToClosestStructure creep = do
 buildNextConstructionSite :: Creep -> Effect Unit
 buildNextConstructionSite creep = 
   case head (find (room creep) find_construction_sites) of
-    Nothing -> do
-      creep `say` "switching to upgrade" # ignoreM
-      upgradeNearestController creep
+    Nothing -> upgradeNearestController creep
     Just targetSite -> do
       buildResult <- creep `build` targetSite
       if buildResult == err_not_in_range 

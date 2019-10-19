@@ -8,19 +8,14 @@ module Role.Builder
 import Prelude
 
 import CreepRoles (Role)
-import CreepTasks (buildNextConstructionSite, harvestEnergy, upgradeNearestController)
+import CreepTasks (buildNextConstructionSite, harvestEnergy)
 import Data.Argonaut (class DecodeJson, class EncodeJson, fromString, stringify, toString)
-import Data.Array (head)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
-import Screeps (err_not_in_range, find_construction_sites, find_sources_active, part_carry, part_move, part_work, resource_energy)
-import Screeps.Creep (amtCarrying, build, carryCapacity, harvestSource, moveTo, say, setAllMemory)
-import Screeps.Room (find)
-import Screeps.RoomObject (pos, room)
-import Screeps.RoomPosition (findClosestByPath)
-import Screeps.Types (BodyPartType, Creep, FindContext(..), TargetPosition(..))
-import Util (ignoreM)
+import Screeps (part_carry, part_move, part_work, resource_energy)
+import Screeps.Creep (amtCarrying, carryCapacity, say, setAllMemory)
+import Screeps.Types (BodyPartType, Creep)
 
 
 constructionPlans :: Array (Array BodyPartType)
