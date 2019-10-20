@@ -10,13 +10,15 @@ import Data.Array (head)
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Screeps (err_not_in_range, find_construction_sites, find_my_structures, find_sources_active, resource_energy, structure_extension, structure_spawn)
-import Screeps.Creep (build, harvestSource, moveTo, say, transferToStructure, upgradeController)
+import Screeps.Constants (find_ruins)
+import Screeps.Creep (build, harvestSource, moveTo, say, transferToStructure, upgradeController, withdraw)
 import Screeps.Room (controller, find)
 import Screeps.RoomObject (pos, room)
 import Screeps.RoomPosition (closestPathOpts, findClosestByPath, findClosestByPath')
+import Screeps.Ruin as Ruin
 import Screeps.Spawn as Spawn
 import Screeps.Structure (structureType)
-import Screeps.Types (Creep, FindContext(..), RawRoomObject, RawStructure, Spawn, TargetPosition(..))
+import Screeps.Types (Creep, FindContext(..), RawRoomObject, RawStructure, Spawn, TargetPosition(..), Ruin)
 import Util (ignoreM)
 
 
@@ -29,17 +31,31 @@ upgradeNearestController creep =
       if upgradeResult == err_not_in_range
       then creep `moveTo` (TargetObj controller) # ignoreM
       else pure unit
-
+  
 harvestEnergy :: Creep -> Effect Unit
 harvestEnergy creep = do
-  closestSource <- findClosestByPath (pos creep) (OfType find_sources_active) 
-  case closestSource of
-    Nothing -> creep `say` "I'm stuck" # ignoreM
-    Just targetSource -> do
-      harvestResult <- creep `harvestSource` targetSource
+  closestRuin <- findClosestByPath' (pos creep) (OfType find_ruins) (closestPathOpts { filter = Just hasEnergy })
+  
+  case closestRuin of
+    Just ruin -> do
+      harvestResult <- withdraw creep ruin resource_energy
       if harvestResult == err_not_in_range
-      then creep `moveTo` (TargetObj targetSource) # ignoreM
+      then creep `moveTo` (TargetObj ruin) # ignoreM
       else pure unit
+    Nothing -> do
+      closestSource <- findClosestByPath (pos creep) (OfType find_sources_active) 
+      case closestSource of
+        Nothing -> creep `say` "I'm stuck" # ignoreM
+        Just targetSource -> do
+          harvestResult <- creep `harvestSource` targetSource
+          if harvestResult == err_not_in_range
+          then creep `moveTo` (TargetObj targetSource) # ignoreM
+          else pure unit
+  
+  where
+    hasEnergy :: Ruin -> Boolean
+    hasEnergy ruin = Ruin.energy ruin > 0
+
 
 
 deliverToClosestStructure :: Creep -> Effect Unit

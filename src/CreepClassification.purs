@@ -13,8 +13,8 @@ import Data.Argonaut as JSON
 import Data.Either (Either(..))
 import Data.Maybe (Maybe)
 import Effect (Effect)
-
 import Role.Builder (BuilderMemory, Builder)
+import Role.Guard (GuardMemory, Guard)
 import Role.Harvester (HarvesterMemory, Harvester)
 import Role.Upgrader (UpgraderMemory, Upgrader)
 import Screeps.Creep (getAllMemory)
@@ -25,11 +25,13 @@ data CreepMemory
   = HarvesterMemory HarvesterMemory
   | BuilderMemory BuilderMemory
   | UpgraderMemory UpgraderMemory
+  | GuardMemory GuardMemory
 
 instance encodeCreepMemory :: EncodeJson CreepMemory where
   encodeJson (HarvesterMemory mem) = encodeJson mem
   encodeJson (BuilderMemory mem) = encodeJson mem
   encodeJson (UpgraderMemory mem) = encodeJson mem 
+  encodeJson (GuardMemory mem) = encodeJson mem
 
 instance decodeCreepMemory :: DecodeJson CreepMemory where
   decodeJson json = go
@@ -38,9 +40,10 @@ instance decodeCreepMemory :: DecodeJson CreepMemory where
         | Right (mem@{role: HarvesterRole}) <- decodeJson json = pure $ HarvesterMemory mem
         | Right (mem@{role: UpgraderRole}) <- decodeJson json = pure $ UpgraderMemory mem
         | Right (mem@{role: BuilderRole}) <- decodeJson json = pure $ BuilderMemory mem
+        | Right (mem@{role: GuardRole}) <- decodeJson json = pure $ GuardMemory mem
         | otherwise = Left $ "Unable to decode creep memory: " <> JSON.stringify json
 
-data VocationalCreep = Harvester Harvester | Builder Builder | Upgrader Upgrader
+data VocationalCreep = Harvester Harvester | Builder Builder | Upgrader Upgrader | Guard Guard
 
 newtype UnknownCreepType = UnknownCreepType String
 
@@ -51,7 +54,8 @@ classifyCreep creep = do
     Right (HarvesterMemory h) -> pure $ Right $ Harvester { creep, mem: h }
     Right (UpgraderMemory u) -> pure $ Right $ Upgrader { creep, mem: u }
     Right (BuilderMemory b) -> pure $ Right $ Builder { creep, mem: b }
+    Right (GuardMemory g) -> pure $ Right $ Guard { creep, mem: g }
     Left err -> pure $ Left $ UnknownCreepType $ "couldn't classify creep with memory: " <> JSON.stringify mem <> ". " <> err
 
-spawnCreep :: Spawn -> Array BodyPartType -> Maybe String -> CreepMemory -> Effect (Either ReturnCode String)
+spawnCreep :: Spawn -> Array BodyPartType -> Maybe String -> { memory :: CreepMemory, dryRun :: Boolean } -> Effect ReturnCode
 spawnCreep spawn bodyParts name mem = createCreep' spawn bodyParts name mem
