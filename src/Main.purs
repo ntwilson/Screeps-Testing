@@ -20,14 +20,16 @@ import Role.Guard (runGuard)
 import Role.Guard as Guard
 import Role.Harvester (runHarvester)
 import Role.Harvester as Harvester
+import Role.Tower (runTower)
 import Role.Upgrader (runUpgrader)
 import Role.Upgrader as Upgrader
-import Screeps (find_hostile_creeps, ok, part_move, structure_extension, structure_road)
+import Screeps (find_hostile_creeps, find_my_structures, ok, part_move)
 import Screeps.Controller (level)
 import Screeps.Game (creeps, getGameGlobal, spawns)
-import Screeps.Room (controller, createConstructionSite, energyAvailable, energyCapacityAvailable, find)
+import Screeps.Room (controller, energyAvailable, energyCapacityAvailable, find)
 import Screeps.RoomObject (room)
-import Screeps.Types (BodyPartType, Creep, Room, Spawn, TargetPosition(..))
+import Screeps.Tower (toTower)
+import Screeps.Types (BodyPartType, Creep, Spawn)
 import Util (bodyPartCost, (<<#>>))
 
 ignore :: forall a. a -> Unit
@@ -189,10 +191,13 @@ loop = do
       shouldSpawn = shouldSpawnCreep { nCreeps, totalCapacity } || anyHostiles
       controllerLevel = controller (room spawn) <#> level # fromMaybe 0
       currentCapacity = energyAvailable (room spawn)
+      towers = find (room spawn) find_my_structures # mapMaybe toTower
 
     if energyAvailable (room spawn) == totalCapacity && shouldSpawn && canSpawn
     then spawnNewCreeps spawn currentCapacity controllerLevel anyHostiles
     else pure unit
+
+    for towers runTower
 
     -- if (constructionSites game # size) == 0 then createConstructionSitesL1 (room spawn) else pure unit
     -- if controllerLevel == 2 && (constructionSites game # size) == 0 then createConstructionSitesL2 (room spawn) else pure unit
@@ -200,5 +205,6 @@ loop = do
 
   for_ (creeps game) \n -> do
     runCreepRole n
-    
+
+  
 

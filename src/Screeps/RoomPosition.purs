@@ -80,14 +80,19 @@ findClosestByPath' pos ctx opts = do
   result <- try (runThisEffFn2 "findClosestByPath" pos ctx' options)
   pure (hush result >>= toMaybe)
 
-  where ctx' = unwrapContext ctx
-        options = selectMaybes opts
+  where 
+    ctx' = unwrapContext ctx
+    options = selectMaybes opts
 
-findClosestByRange :: forall a. RoomPosition -> FindContext a -> Effect (Either Error (Maybe a))
-findClosestByRange pos ctx = try (toMaybe <$> runThisEffFn1 "findClosestByRange" pos (unwrapContext ctx))
+findClosestByRange :: forall a. RoomPosition -> FindContext a -> Effect (Maybe a)
+findClosestByRange pos ctx = do
+  result <- try (runThisEffFn1 "findClosestByRange" pos (unwrapContext ctx))
+  pure (hush result >>= toMaybe)
 
-findClosestByRange' :: forall a. RoomPosition -> FindContext a -> FilterFn a -> Effect (Either Error (Maybe a))
-findClosestByRange' pos ctx filter = try (toMaybe <$> runThisEffFn2 "findClosestByRange" pos (unwrapContext ctx) { filter })
+findClosestByRange' :: forall a. RoomPosition -> FindContext a -> FilterFn a -> Effect (Maybe a)
+findClosestByRange' pos ctx filter = do
+  result <- try (runThisEffFn2 "findClosestByRange" pos (unwrapContext ctx) { filter })
+  pure (hush result >>= toMaybe)
 
 findInRange :: forall a. RoomPosition -> FindContext a -> Int -> Effect (Either Error (Array a))
 findInRange pos ctx range = try (runThisEffFn2 "findInRange" pos (unwrapContext ctx) range)

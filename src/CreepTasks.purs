@@ -9,7 +9,7 @@ import Prelude
 import Data.Array (head)
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
-import Screeps (err_not_in_range, find_construction_sites, find_my_structures, find_sources_active, resource_energy, structure_extension, structure_spawn)
+import Screeps (err_not_in_range, find_construction_sites, find_my_structures, find_sources_active, resource_energy, structure_extension, structure_spawn, structure_tower)
 import Screeps.Constants (find_ruins)
 import Screeps.Creep (build, harvestSource, moveTo, say, transferToStructure, upgradeController, withdraw)
 import Screeps.Room (controller, find)
@@ -75,7 +75,7 @@ deliverToClosestStructure creep = do
 
     desiredTarget :: forall a. RawRoomObject (RawStructure a) -> Boolean
     desiredTarget struct = 
-      (structureType struct) == structure_spawn || (structureType struct) == structure_extension
+      (structureType struct) == structure_spawn || (structureType struct) == structure_extension || (structureType struct) == structure_tower
 
 buildNextConstructionSite :: Creep -> Effect Unit
 buildNextConstructionSite creep = 
