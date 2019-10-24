@@ -60,20 +60,10 @@ harvestEnergy creep = do
     hasEnergy :: Ruin -> Boolean
     hasEnergy ruin = Ruin.energy ruin > 0
 
-structureFilter :: (forall a. Structure a) -> Boolean
-structureFilter x 
-  | Just spawn <- toSpawn x = Spawn.energy spawn < Spawn.energyCapacity spawn
-  | Just extension <- toExtension x = Extension.energy extension < Extension.energyCapacity extension
-  | Just tower <- toTower x = Tower.energy tower < Tower.energyCapacity tower
-  | otherwise = false 
-
-closestStructureCalculation :: Creep -> Effect (Maybe (forall a. Structure a))
-closestStructureCalculation creep = 
-  findClosestByPath' (pos creep) (OfType find_my_structures) (closestPathOpts { filter = Just structureFilter })
 
 deliverToClosestStructure :: Creep -> Effect Unit
 deliverToClosestStructure creep = do
-  closestStructure <- closestStructureCalculation creep
+  closestStructure <- findClosestByPath' (pos creep) (OfType find_my_structures) (closestPathOpts { filter = Just structureFilter })
   case closestStructure of
     Just (energyStructure :: forall a. Structure a) -> do
       transferResult <- transferToStructure creep energyStructure resource_energy
@@ -81,6 +71,16 @@ deliverToClosestStructure creep = do
       then creep `moveTo` (TargetObj energyStructure) # ignoreM
       else pure unit
     Nothing -> buildNextConstructionSite creep
+
+  where
+    structureFilter :: (forall a. Structure a) -> Boolean
+    structureFilter x 
+      | Just spawn <- toSpawn x = Spawn.energy spawn < Spawn.energyCapacity spawn
+      | Just extension <- toExtension x = Extension.energy extension < Extension.energyCapacity extension
+      | Just tower <- toTower x = Tower.energy tower < Tower.energyCapacity tower
+      | otherwise = false 
+      
+
 
 
 buildNextConstructionSite :: Creep -> Effect Unit
