@@ -9,16 +9,20 @@ import Prelude
 import Data.Array (head)
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
-import Screeps (err_not_in_range, find_construction_sites, find_my_structures, find_sources_active, resource_energy, structure_extension, structure_spawn, structure_tower)
+import Screeps (err_not_in_range, find_construction_sites, find_my_structures, find_sources_active, resource_energy)
 import Screeps.Constants (find_ruins)
 import Screeps.Creep (build, harvestSource, moveTo, say, transferToStructure, upgradeController, withdraw)
+import Screeps.Extension (toExtension)
+import Screeps.Extension as Extension
 import Screeps.Room (controller, find)
 import Screeps.RoomObject (pos, room)
 import Screeps.RoomPosition (closestPathOpts, findClosestByPath, findClosestByPath')
 import Screeps.Ruin as Ruin
+import Screeps.Spawn (toSpawn)
 import Screeps.Spawn as Spawn
-import Screeps.Structure (structureType)
-import Screeps.Types (Creep, FindContext(..), RawRoomObject, RawStructure, Spawn, TargetPosition(..), Ruin)
+import Screeps.Tower (toTower)
+import Screeps.Tower as Tower
+import Screeps.Types (Creep, FindContext(..), Ruin, Structure, TargetPosition(..))
 import Util (ignoreM)
 
 
@@ -56,26 +60,28 @@ harvestEnergy creep = do
     hasEnergy :: Ruin -> Boolean
     hasEnergy ruin = Ruin.energy ruin > 0
 
+structureFilter :: (forall a. Structure a) -> Boolean
+structureFilter x 
+  | Just spawn <- toSpawn x = Spawn.energy spawn < Spawn.energyCapacity spawn
+  | Just extension <- toExtension x = Extension.energy extension < Extension.energyCapacity extension
+  | Just tower <- toTower x = Tower.energy tower < Tower.energyCapacity tower
+  | otherwise = false 
 
+closestStructureCalculation :: Creep -> Effect (Maybe (forall a. Structure a))
+closestStructureCalculation creep = 
+  findClosestByPath' (pos creep) (OfType find_my_structures) (closestPathOpts { filter = Just structureFilter })
 
 deliverToClosestStructure :: Creep -> Effect Unit
 deliverToClosestStructure creep = do
-  closestStructure <- findClosestByPath' (pos creep) (OfType find_my_structures) (closestPathOpts { filter = structureFilter })
+  closestStructure <- closestStructureCalculation creep
   case closestStructure of
-    Just spawn -> do
-      transferResult <- transferToStructure creep spawn resource_energy
+    Just (energyStructure :: forall a. Structure a) -> do
+      transferResult <- transferToStructure creep energyStructure resource_energy
       if transferResult == err_not_in_range
-      then creep `moveTo` (TargetObj spawn) # ignoreM
+      then creep `moveTo` (TargetObj energyStructure) # ignoreM
       else pure unit
     Nothing -> buildNextConstructionSite creep
 
-  where
-    structureFilter :: Maybe (Spawn -> Boolean)
-    structureFilter = Just (\x -> desiredTarget x && Spawn.energy x < Spawn.energyCapacity x)
-
-    desiredTarget :: forall a. RawRoomObject (RawStructure a) -> Boolean
-    desiredTarget struct = 
-      (structureType struct) == structure_spawn || (structureType struct) == structure_extension || (structureType struct) == structure_tower
 
 buildNextConstructionSite :: Creep -> Effect Unit
 buildNextConstructionSite creep = 
