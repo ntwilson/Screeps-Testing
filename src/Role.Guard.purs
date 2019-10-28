@@ -18,7 +18,7 @@ import Util (ignoreM)
 
 constructionPlans :: Array (Array BodyPartType)
 constructionPlans =
-  [ [ part_tough, part_tough, part_tough, part_tough, part_tough, part_tough, part_tough, part_move, part_move, part_move, part_move, part_move, part_attack, part_attack, part_attack, part_attack, part_attack, part_attack ] -- 800
+  [ [ part_tough, part_tough, part_tough, part_tough, part_tough, part_tough, part_move, part_move, part_move, part_move, part_move, part_move, part_attack, part_attack, part_attack, part_attack, part_attack, part_attack ]
   , [ part_tough, part_tough, part_tough, part_tough, part_tough, part_move, part_move, part_move, part_move, part_move, part_attack, part_attack, part_attack, part_attack, part_attack ] -- 700
   , [ part_tough, part_tough, part_tough, part_tough, part_tough, part_move, part_move, part_move, part_move, part_attack, part_attack, part_attack, part_attack, part_attack ] -- 650
   , [ part_tough, part_tough, part_tough, part_tough, part_tough, part_tough, part_move, part_move, part_move, part_move, part_move, part_attack, part_attack, part_attack ] -- 550 (max room 2)
