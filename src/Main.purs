@@ -54,16 +54,6 @@ runCreepRole creep = classifyCreep creep >>= matchUnit
 shouldSpawnCreep :: { nCreeps :: Int, totalCapacity :: Int } -> Boolean
 shouldSpawnCreep { nCreeps, totalCapacity } = 
   nCreeps < 8
-  -- minBudget <= totalCapacity
-
-  -- where
-  --   minBudget 
-  --     | nCreeps < 7 = 300 -- max for room level 1
-  --     | nCreeps < 10 = 400 
-  --     -- max for room level 2 (550)
-  --     -- | nCreeps < 11 = 600 
-  --     -- | nCreeps < 12 = 800 -- max for room level 3
-  --     | otherwise = 10000 -- only up to 12 worker creeps per room
     
 
 constructionPlan :: Array (Array BodyPartType) -> Int -> Array BodyPartType
@@ -75,52 +65,6 @@ constructionPlan plans budget =
       # Array.find (\(Tuple plan cost) -> cost <= budget)
       <#> (\(Tuple plan _cost) -> plan) 
   in fromMaybe [] maybePlan
-
-
--- NOTE: this is an ordered set.  Builders will build each structure
--- in the order listed here.
--- createConstructionSitesL1 :: Room -> Effect Unit
--- createConstructionSitesL1 room = 
---   let 
---     constructionSites = 
---       [ { loc: (TargetPt 42 43), structure: structure_road }
---       , { loc: (TargetPt 41 42), structure: structure_road }
---       , { loc: (TargetPt 40 41), structure: structure_road }
---       , { loc: (TargetPt 41 43), structure: structure_road }
---       , { loc: (TargetPt 42 42), structure: structure_road }
---       ]
---   in
---     for_ constructionSites $ \{ loc, structure } -> createConstructionSite room loc structure
-
--- createConstructionSitesL2 :: Room -> Effect Unit
--- createConstructionSitesL2 room =
---   let 
---     constructionSites =
---       [ { loc: (TargetPt 36 39), structure: structure_extension }
---       , { loc: (TargetPt 29 27), structure: structure_extension }
---       , { loc: (TargetPt 39 41), structure: structure_road }
---       , { loc: (TargetPt 40 40), structure: structure_road }
---       , { loc: (TargetPt 40 42), structure: structure_road }
---       , { loc: (TargetPt 41 41), structure: structure_road }
---       , { loc: (TargetPt 30 28), structure: structure_extension }
---       , { loc: (TargetPt 38 38), structure: structure_extension }
---       , { loc: (TargetPt 40 37), structure: structure_extension }
---       ]
---   in 
---     for_ constructionSites $ \{ loc, structure } -> createConstructionSite room loc structure
-
--- createConstructionSitesL3 :: Room -> Effect Unit
--- createConstructionSitesL3 room =
---   let 
---     constructionSites =
---       [ { loc: (TargetPt 42 38), structure: structure_extension }
---       , { loc: (TargetPt 38 39), structure: structure_extension }
---       , { loc: (TargetPt 27 21), structure: structure_extension }
---       , { loc: (TargetPt 27 20), structure: structure_extension }
---       , { loc: (TargetPt 39 36), structure: structure_extension }
---       ]
---   in 
---     for_ constructionSites $ \{ loc, structure } -> createConstructionSite room loc structure
 
 
 spawnNewCreeps :: Spawn -> Int -> Int -> Boolean -> Effect Unit

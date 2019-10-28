@@ -16,7 +16,7 @@ import Screeps.Constants (find_ruins, find_tombstones)
 import Screeps.Creep (build, harvestSource, moveTo, repair, transferToStructure, upgradeController, withdraw, withdrawFromTombstone)
 import Screeps.Extension (toExtension)
 import Screeps.Extension as Extension
-import Screeps.Room (controller, find)
+import Screeps.Room (controller, find, find')
 import Screeps.RoomObject (pos, room)
 import Screeps.RoomPosition (closestPathOpts, findClosestByPath, findClosestByPath', getRangeTo)
 import Screeps.Ruin as Ruin
@@ -149,10 +149,10 @@ repairNearestStructure creep = do
     structuresInOrderOfHealth :: Array (forall a. Structure a)
     structuresInOrderOfHealth =
       let 
-        allStructures = find (room creep) find_structures 
+        allStructures = find' (room creep) find_structures (\struct -> hits struct < min (1_000_000) (hitsMax struct))
         structureHealths = 
           allStructures 
-          <#> \a -> { structure: (a :: forall b. Structure b), health: toNumber (hits a) / toNumber (hitsMax a) }
+          <#> \a -> { structure: (a :: forall b. Structure b), health: toNumber (hits a) / toNumber (min 1_000_000 (hitsMax a)) }
       in
         structureHealths 
           # sortBy (\{health: healthA} {health: healthB} -> compare healthA healthB)
