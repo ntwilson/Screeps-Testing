@@ -60,8 +60,8 @@ shouldSpawnCreep { nCreeps, totalCapacity } =
       | nCreeps < 7 = 300 -- max for room level 1
       | nCreeps < 10 = 400 
       -- max for room level 2 (550)
-      | nCreeps < 11 = 600 
-      | nCreeps < 12 = 800 -- max for room level 3
+      -- | nCreeps < 11 = 600 
+      -- | nCreeps < 12 = 800 -- max for room level 3
       | otherwise = 10000 -- only up to 12 worker creeps per room
     
 

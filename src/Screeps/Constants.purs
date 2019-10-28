@@ -2,7 +2,7 @@ module Screeps.Constants where
 
 import Prelude
 
-import Screeps.Types (BodyPartType, Color, ConstructionSite, Creep, Direction, FindType, Flag, LookType, Mineral, Mode, Nuke, Resource, ResourceType, ReturnCode, RoomPosition, Source, Spawn, Structure, StructureInfo, StructureType, Terrain, TerrainMask, Ruin)
+import Screeps.Types (BodyPartType, Color, ConstructionSite, Creep, Direction, FindType, Flag, LookType, Mineral, Mode, Nuke, Resource, ResourceType, ReturnCode, RoomPosition, Ruin, Source, Spawn, Structure, StructureInfo, StructureType, Terrain, TerrainMask, Tombstone)
 
 foreign import ok :: ReturnCode
 foreign import err_not_owner :: ReturnCode
@@ -46,6 +46,7 @@ foreign import find_hostile_construction_sites :: FindType ConstructionSite
 foreign import find_minerals :: FindType Mineral
 foreign import find_nukes :: FindType Nuke
 foreign import find_ruins :: FindType Ruin
+foreign import find_tombstones :: FindType Tombstone
 
 foreign import top :: Direction
 foreign import top_right :: Direction
