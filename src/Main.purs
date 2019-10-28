@@ -4,16 +4,15 @@ import Prelude
 
 import CreepClassification (CreepMemory(..), UnknownCreepType(..), VocationalCreep(..), classifyCreep, spawnCreep)
 import CreepRoles (Role(..))
-import Data.Array (fromFoldable, length, mapMaybe, zip)
+import Data.Array (catMaybes, filter, fromFoldable, length, mapMaybe, zip)
 import Data.Array as Array
-import Data.Either (Either(..))
+import Data.Either (Either(..), hush)
 import Data.Foldable (for_, sum)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Traversable (for)
 import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Console (log)
-import Foreign.Object (size)
 import Role.Builder (runBuilder)
 import Role.Builder as Builder
 import Role.Guard (runGuard)
@@ -123,7 +122,16 @@ spawnNewCreeps spawn budget controllerLevel anyHostiles = do
 loop :: Effect Unit
 loop = do
   game <- getGameGlobal
-  let nCreeps = creeps game # size
+  creepMemories <- for (creeps game # fromFoldable) classifyCreep
+  let 
+    nCreeps = 
+      creepMemories <#> hush # catMaybes 
+      # filter (case _ of 
+        Harvester _ -> true
+        Builder _ -> true
+        Upgrader _ -> true
+        _ -> false)
+      # length
   
   
   for_ (spawns game) \spawn -> do
@@ -143,10 +151,6 @@ loop = do
     else pure unit
 
     for towers runTower
-
-    -- if (constructionSites game # size) == 0 then createConstructionSitesL1 (room spawn) else pure unit
-    -- if controllerLevel == 2 && (constructionSites game # size) == 0 then createConstructionSitesL2 (room spawn) else pure unit
-    -- if controllerLevel == 3 && (constructionSites game # size) == 0 then createConstructionSitesL3 (room spawn) else pure unit
 
   for_ (creeps game) \n -> do
     runCreepRole n
