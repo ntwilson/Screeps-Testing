@@ -8,7 +8,7 @@ module Role.Builder
 import Prelude
 
 import CreepRoles (Role)
-import CreepTasks (buildNextConstructionSite, harvestEnergy)
+import CreepTasks (buildNextConstructionSite, harvestEnergy, repairNearestStructure, upgradeNearestController)
 import Data.Argonaut (class DecodeJson, class EncodeJson, fromString, stringify, toString)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
@@ -16,11 +16,17 @@ import Effect (Effect)
 import Screeps (part_carry, part_move, part_work, resource_energy)
 import Screeps.Creep (amtCarrying, carryCapacity, say, setAllMemory)
 import Screeps.Types (BodyPartType, Creep)
+import Util (ignore)
 
 
 constructionPlans :: Array (Array BodyPartType)
 constructionPlans =
-  [ [ part_move, part_move, part_move, part_move, part_move, part_carry, part_carry, part_carry, part_carry, part_carry, part_work, part_work, part_work, part_work, part_work] -- 1000 (14 extensions)
+  [ 
+    [ part_move, part_move, part_move, part_move, part_move, part_move, part_move, part_move, part_move, part_carry, part_carry, part_carry, part_carry, part_carry, part_carry, part_carry, part_carry, part_carry, part_work, part_work, part_work, part_work, part_work, part_work, part_work, part_work, part_work]  -- 1800 (30 extensions)
+  , [ part_move, part_move, part_move, part_move, part_move, part_move, part_move, part_move, part_carry, part_carry, part_carry, part_carry, part_carry, part_carry, part_carry, part_carry, part_work, part_work, part_work, part_work, part_work, part_work, part_work, part_work]  -- 1600 (26 extensions)
+  , [ part_move, part_move, part_move, part_move, part_move, part_move, part_move, part_carry, part_carry, part_carry, part_carry, part_carry, part_carry, part_carry, part_work, part_work, part_work, part_work, part_work, part_work, part_work] -- 1400 (22 extensions)
+  , [ part_move, part_move, part_move, part_move, part_move, part_move, part_carry, part_carry, part_carry, part_carry, part_carry, part_carry, part_work, part_work, part_work, part_work, part_work, part_work] -- 1200 (18 extensions)
+  , [ part_move, part_move, part_move, part_move, part_move, part_carry, part_carry, part_carry, part_carry, part_carry, part_work, part_work, part_work, part_work, part_work] -- 1000 (14 extensions)
   , [ part_move, part_move, part_move, part_move, part_carry, part_carry, part_carry, part_carry, part_work, part_work, part_work, part_work] -- 800 (10 extensions)
   , [ part_move, part_move, part_move, part_carry, part_carry, part_work, part_work, part_work ] -- 550 (5 extensions)
   , [ part_move, part_move, part_carry, part_carry, part_work, part_work, part_work ] -- 500
@@ -57,12 +63,19 @@ runBuilder builder@{ creep, mem } = do
       then do
         _ <- say creep "harvesting"
         setMemory builder (mem { job = Harvesting })
-      else buildNextConstructionSite creep
+      else do 
+        result <- buildNextConstructionSite creep
+        if result then pure unit else do
+          result2 <- repairNearestStructure creep
+          if result2 then pure unit else do
+            result3 <- upgradeNearestController creep
+            if result3 then pure unit 
+            else creep `say` "I'm stuck" <#> ignore
 
     Harvesting ->
       if creep `amtCarrying` resource_energy == carryCapacity creep
       then do
         _ <- say creep "building"
         setMemory builder (mem { job = Building })
-      else harvestEnergy creep                
+      else harvestEnergy creep <#> ignore
 

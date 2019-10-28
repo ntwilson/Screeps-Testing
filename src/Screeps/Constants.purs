@@ -34,9 +34,9 @@ foreign import find_sources_active :: FindType Source
 foreign import find_sources :: FindType Source
 foreign import find_dropped_energy :: FindType Resource
 foreign import find_dropped_resources :: FindType Resource
-foreign import find_structures :: FindType (Structure Unit)
+foreign import find_structures :: FindType (forall a. Structure a)
 foreign import find_my_structures :: FindType (forall a. Structure a)
-foreign import find_hostile_structures :: FindType (Structure Unit)
+foreign import find_hostile_structures :: FindType (forall a. Structure a)
 foreign import find_flags :: FindType Flag
 foreign import find_construction_sites :: FindType ConstructionSite
 foreign import find_my_spawns :: FindType Spawn

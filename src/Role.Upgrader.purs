@@ -16,11 +16,17 @@ import Effect (Effect)
 import Screeps (part_carry, part_move, part_work, resource_energy)
 import Screeps.Creep (amtCarrying, carryCapacity, say, setAllMemory)
 import Screeps.Types (BodyPartType, Creep)
+import Util (ignore)
 
 
 constructionPlans :: Array (Array BodyPartType)
 constructionPlans =
-  [ [ part_move, part_move, part_move, part_move, part_move, part_carry, part_carry, part_carry, part_carry, part_carry, part_work, part_work, part_work, part_work, part_work] -- 1000 (14 extensions)
+  [
+    [ part_move, part_move, part_move, part_move, part_move, part_move, part_move, part_move, part_move, part_carry, part_carry, part_carry, part_carry, part_carry, part_carry, part_carry, part_carry, part_carry, part_work, part_work, part_work, part_work, part_work, part_work, part_work, part_work, part_work]  -- 1800 (30 extensions)
+  , [ part_move, part_move, part_move, part_move, part_move, part_move, part_move, part_move, part_carry, part_carry, part_carry, part_carry, part_carry, part_carry, part_carry, part_carry, part_work, part_work, part_work, part_work, part_work, part_work, part_work, part_work]  -- 1600 (26 extensions)
+  , [ part_move, part_move, part_move, part_move, part_move, part_move, part_move, part_carry, part_carry, part_carry, part_carry, part_carry, part_carry, part_carry, part_work, part_work, part_work, part_work, part_work, part_work, part_work] -- 1400 (22 extensions)
+  , [ part_move, part_move, part_move, part_move, part_move, part_move, part_carry, part_carry, part_carry, part_carry, part_carry, part_carry, part_work, part_work, part_work, part_work, part_work, part_work] -- 1200 (18 extensions)
+  , [ part_move, part_move, part_move, part_move, part_move, part_carry, part_carry, part_carry, part_carry, part_carry, part_work, part_work, part_work, part_work, part_work] -- 1000 (14 extensions)
   , [ part_move, part_move, part_move, part_move, part_carry, part_carry, part_carry, part_carry, part_work, part_work, part_work, part_work] -- 800 (10 extensions)
   , [ part_move, part_move, part_move, part_carry, part_carry, part_carry, part_work, part_work, part_work] -- 600
   , [ part_move, part_move, part_move, part_carry, part_carry, part_work, part_work, part_work ] -- 550 (5 extensions)
@@ -58,11 +64,14 @@ runUpgrader upgrader@{ creep, mem } =
       then do
         _ <- creep `say` "harvesting"
         setMemory upgrader (mem { job = Harvesting })
-      else upgradeNearestController creep
+      else do
+        result <- upgradeNearestController creep
+        if result then pure unit 
+        else creep `say` "I'm stuck" <#> ignore
 
     Harvesting -> 
       if creep `amtCarrying` resource_energy == carryCapacity creep
       then do
         _ <- creep `say` "upgrading"
         setMemory upgrader (mem { job = Upgrading }) 
-      else harvestEnergy creep
+      else harvestEnergy creep <#> ignore
