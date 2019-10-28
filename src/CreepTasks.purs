@@ -7,8 +7,7 @@ module CreepTasks
 
 import Prelude
 
-import Data.Array (head)
-import Data.Foldable (minimumBy)
+import Data.Array (head, index, sortBy)
 import Data.Int (toNumber)
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
@@ -19,7 +18,7 @@ import Screeps.Extension (toExtension)
 import Screeps.Extension as Extension
 import Screeps.Room (controller, find)
 import Screeps.RoomObject (pos, room)
-import Screeps.RoomPosition (closestPathOpts, findClosestByPath, findClosestByPath')
+import Screeps.RoomPosition (closestPathOpts, findClosestByPath, findClosestByPath', getRangeTo)
 import Screeps.Ruin as Ruin
 import Screeps.Spawn (toSpawn)
 import Screeps.Spawn as Spawn
@@ -135,19 +134,32 @@ repairNearestStructure creep = do
 
     repairMostDamagedStructure :: Effect Boolean
     repairMostDamagedStructure =
-      case mostDamagedStructure of
-        Just (struct :: forall a. Structure a) -> repairIt struct <#> const true
-        Nothing -> pure false
+      -- don't bounce back and forth between two structures.  If you're already repairing one structure
+      -- stick with it even if it becomes no longer the most damaged structure.
+      case secondMostDamaged of
+        Just (struct :: forall a. Structure a) 
+          | (pos creep) `getRangeTo` (TargetObj struct) < 5 -> 
+            repairIt struct <#> const true
 
-    mostDamagedStructure :: Maybe (forall a. Structure a)
-    mostDamagedStructure = 
+        _ -> 
+          case mostDamagedStructure of
+            Just (struct :: forall a. Structure a) -> repairIt struct <#> const true
+            Nothing -> pure false
+            
+    structuresInOrderOfHealth :: Array (forall a. Structure a)
+    structuresInOrderOfHealth =
       let 
         allStructures = find (room creep) find_structures 
         structureHealths = 
           allStructures 
           <#> \a -> { structure: (a :: forall b. Structure b), health: toNumber (hits a) / toNumber (hitsMax a) }
-
       in
         structureHealths 
-        # minimumBy (\{health: healthA} {health: healthB} -> compare healthA healthB)
-        # map _.structure
+          # sortBy (\{health: healthA} {health: healthB} -> compare healthA healthB)
+          # map _.structure
+
+    mostDamagedStructure :: Maybe (forall a. Structure a)
+    mostDamagedStructure = head structuresInOrderOfHealth 
+
+    secondMostDamaged :: Maybe (forall a. Structure a)
+    secondMostDamaged = structuresInOrderOfHealth `index` 1
