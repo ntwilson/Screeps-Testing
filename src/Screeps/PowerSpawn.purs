@@ -9,18 +9,6 @@ import Screeps.FFI (runThisEffFn0, runThisEffFn1, unsafeField)
 import Screeps.Structure (unsafeCast)
 import Screeps.Types (PowerSpawn, ReturnCode, class Structure)
 
-energy :: PowerSpawn -> Int
-energy = unsafeField "energy"
-
-energyCapacity :: PowerSpawn -> Int
-energyCapacity = unsafeField "energyCapacity"
-
-power :: PowerSpawn -> Int
-power = unsafeField "power"
-
-powerCapacity :: PowerSpawn -> Int
-powerCapacity = unsafeField "powerCapacity"
-
 createPowerCreep :: PowerSpawn -> String -> Effect ReturnCode
 createPowerCreep spawn name = runThisEffFn1 "createPowerCreep" spawn name
 

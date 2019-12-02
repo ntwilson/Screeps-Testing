@@ -7,6 +7,7 @@ module CreepTasks
 
 import Prelude
 
+import Classes (energy, energyCapacity, hits, hitsMax)
 import Data.Array (head, index, sortBy)
 import Data.Int (toNumber)
 import Data.Maybe (Maybe(..))
@@ -15,19 +16,12 @@ import Screeps (err_not_in_range, find_construction_sites, find_my_structures, f
 import Screeps.Constants (find_ruins, find_tombstones)
 import Screeps.Creep (build, harvestSource, moveTo, repair, transferToStructure, upgradeController, withdraw, withdrawFromTombstone)
 import Screeps.Extension (toExtension)
-import Screeps.Extension as Extension
 import Screeps.Room (controller, find, find')
 import Screeps.RoomObject (pos, room, targetObj)
 import Screeps.RoomPosition (closestPathOpts, findClosestByPath, findClosestByPath', getRangeTo)
-import Screeps.Ruin as Ruin
 import Screeps.Spawn (toSpawn)
-import Screeps.Spawn as Spawn
-import Screeps.Structure (hits, hitsMax)
 import Screeps.Tower (toTower)
-import Screeps.Tower as Tower
 import Screeps.Types (class Structure, Creep, Ruin, SomeStructure, Tombstone)
-import Store (getUsedCapacity)
-import Tombstone (store)
 import Util (ignore)
 
 
@@ -71,12 +65,11 @@ harvestEnergy creep = do
   
   where
     ruinHasEnergy :: Ruin -> Boolean
-    ruinHasEnergy ruin = Ruin.energy ruin > 0
+    ruinHasEnergy ruin = energy ruin > 0
 
     tombstoneHasEnergy :: Tombstone -> Boolean
     tombstoneHasEnergy tombstone  
-      | Just energy <- (store tombstone) `getUsedCapacity` resource_energy 
-      , energy > 0 = true
+      | energyCapacity tombstone > 0 = true
       | otherwise = false
         
 
@@ -95,9 +88,9 @@ deliverToClosestStructure creep = do
   where
     structureFilter :: SomeStructure -> Boolean
     structureFilter x 
-      | Just spawn <- toSpawn x = Spawn.energy spawn < Spawn.energyCapacity spawn
-      | Just extension <- toExtension x = Extension.energy extension < Extension.energyCapacity extension
-      | Just tower <- toTower x = Tower.energy tower < Tower.energyCapacity tower
+      | Just spawn <- toSpawn x = energy spawn < energyCapacity spawn
+      | Just extension <- toExtension x = energy extension < energyCapacity extension
+      | Just tower <- toTower x = energy tower < energyCapacity tower
       | otherwise = false 
       
 

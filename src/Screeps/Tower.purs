@@ -9,12 +9,6 @@ import Screeps.Structure (unsafeCast)
 import Screeps.Types (Creep, ReturnCode, class Structure, Tower)
 import Screeps.FFI (runThisEffFn1, runThisEffFn2, unsafeField)
 
-energy :: Tower -> Int
-energy = unsafeField "energy"
-
-energyCapacity :: Tower -> Int
-energyCapacity = unsafeField "energyCapacity"
-
 attack :: Tower -> Creep -> Effect ReturnCode
 attack = runThisEffFn1 "attack"
 

@@ -12,20 +12,8 @@ import Screeps.Types (Creep, Lab, ReturnCode, class Structure)
 cooldown :: Lab -> Int
 cooldown = unsafeField "cooldown"
 
-energy :: Lab -> Int
-energy = unsafeField "energy"
-
-energyCapacity :: Lab -> Int
-energyCapacity = unsafeField "energyCapacity"
-
-mineralAmount :: Lab -> Int
-mineralAmount = unsafeField "mineralAmount"
-
 mineralType :: Lab -> String
 mineralType = unsafeField "mineralType"
-
-mineralCapacity :: Lab -> Int
-mineralCapacity = unsafeField "mineralCapacity"
 
 boostCreep :: Lab -> Creep -> Effect ReturnCode
 boostCreep = runThisEffFn1 "boostCreep"

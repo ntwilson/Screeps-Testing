@@ -44,25 +44,10 @@ moveOpts =
 body :: Creep -> Array BodyPart
 body creep = unsafeField "body" creep
 
-carry :: Creep -> CreepCargo
-carry = unsafeField "carry"
-
-amtCarrying :: Creep -> ResourceType -> Int
-amtCarrying creep res = unsafeField (show res) $ carry creep
-
 foreign import totalAmtCarrying :: Creep -> Int
-
-carryCapacity :: Creep -> Int
-carryCapacity = unsafeField "carryCapacity"
 
 fatigue :: Creep -> Int
 fatigue = unsafeField "fatigue"
-
-hits :: Creep -> Int
-hits = unsafeField "hits"
-
-hitsMax :: Creep -> Int
-hitsMax = unsafeField "hitsMax"
 
 getId :: Creep -> Id Creep
 getId = unsafeField "id"

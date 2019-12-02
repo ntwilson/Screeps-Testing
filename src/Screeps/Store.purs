@@ -2,9 +2,11 @@ module Store where
 
 import Prelude
 
-import Data.Maybe (Maybe)
+import Data.Maybe (Maybe, fromJust)
+import Partial.Unsafe (unsafePartial)
+import Screeps (resource_energy)
 import Screeps.FFI (toMaybe, unsafeField)
-import Screeps.Types (Container, ResourceType(..), Store)
+import Screeps.Types (ResourceType(..), Store)
 
 -- | returns Nothing if that resource type is not valid for that
 -- | type of Store
@@ -28,8 +30,12 @@ getFreeCapacity store resource = do
   usedCapacity <- store `getUsedCapacity` resource
   pure $ totalCapacity - usedCapacity
 
-class HasStorage a where
-  storage :: a -> Store
+-- | note this makes the assumption that _every_ kind of store can hold
+-- | energy.  See https://docs.screeps.com/api/#Store.
+getEnergy :: Store -> Int 
+getEnergy store = unsafePartial $ fromJust $ store `getUsedCapacity` resource_energy 
 
-instance containerStorage :: HasStorage Container where
-  storage container = container # unsafeField "storage"
+-- | note this makes the assumption that _every_ kind of store can hold
+-- | energy.  See https://docs.screeps.com/api/#Store.
+getEnergyCapacity :: Store -> Int
+getEnergyCapacity store = unsafePartial $ fromJust $ store `getCapacity` resource_energy 

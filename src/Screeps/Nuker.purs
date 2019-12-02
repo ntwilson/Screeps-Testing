@@ -9,18 +9,6 @@ import Screeps.FFI (runThisEffFn1, unsafeField)
 import Screeps.Structure (unsafeCast)
 import Screeps.Types (Nuker, ReturnCode, RoomPosition, class Structure)
 
-energy :: Nuker -> Int
-energy = unsafeField "energy"
-
-energyCapacity :: Nuker -> Int
-energyCapacity = unsafeField "energyCapacity"
-
-ghodium :: Nuker -> Int
-ghodium = unsafeField "ghodium"
-
-ghodiumCapacity :: Nuker -> Int
-ghodiumCapacity = unsafeField "ghodiumCapacity"
-
 cooldown :: Nuker -> Int
 cooldown = unsafeField "cooldown"
 

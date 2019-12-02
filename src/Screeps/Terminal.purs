@@ -5,20 +5,9 @@ import Effect (Effect)
 import Data.Maybe (Maybe)
 
 import Screeps.Constants (structure_terminal)
-import Screeps.FFI (runThisEffFn3, runThisEffFn4, unsafeField)
+import Screeps.FFI (runThisEffFn3, runThisEffFn4)
 import Screeps.Structure (unsafeCast)
-import Screeps.Types (ResourceType(ResourceType), ReturnCode, class Structure, Terminal)
-
-foreign import data Store :: Type
-
-store :: Terminal -> Store
-store = unsafeField "store"
-
-storeGet :: Store -> ResourceType -> Int
-storeGet s (ResourceType res) = unsafeField res s
-
-storeCapacity :: Terminal -> Int
-storeCapacity = unsafeField "storeCapacity"
+import Screeps.Types (class Structure, ResourceType, ReturnCode, Terminal)
 
 send :: Terminal -> ResourceType -> Int -> String -> Effect ReturnCode
 send term res amount destRoomName = runThisEffFn3 "send" term res amount destRoomName

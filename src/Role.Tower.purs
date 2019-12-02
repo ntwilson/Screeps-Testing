@@ -2,10 +2,10 @@ module Role.Tower (runTower) where
 
 import Prelude
 
+import Classes (hits, hitsMax)
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Screeps (find_hostile_creeps, find_my_creeps)
-import Screeps.Creep (hits, hitsMax)
 import Screeps.RoomObject (pos)
 import Screeps.RoomPosition (findClosestByRange, findClosestByRange')
 import Screeps.Tower (attack, heal)

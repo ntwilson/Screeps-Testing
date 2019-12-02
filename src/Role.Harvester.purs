@@ -7,14 +7,15 @@ module Role.Harvester
 
 import Prelude
 
+import Classes (energy, energyCapacity)
 import CreepRoles (Role)
 import CreepTasks (buildNextConstructionSite, deliverToClosestStructure, harvestEnergy, upgradeNearestController)
 import Data.Argonaut (class DecodeJson, class EncodeJson, fromString, stringify, toString)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
-import Screeps (part_carry, part_move, part_work, resource_energy)
-import Screeps.Creep (amtCarrying, carryCapacity, say, setAllMemory)
+import Screeps (part_carry, part_move, part_work)
+import Screeps.Creep (say, setAllMemory)
 import Screeps.Types (BodyPartType, Creep)
 import Util (ignore)
 
@@ -60,7 +61,7 @@ runHarvester harvester@{ creep, mem } =
 
   case mem.job of
     Delivering -> 
-      if creep `amtCarrying` resource_energy == 0
+      if energy creep == 0
       then do
         _ <- creep `say` "harvesting"
         setMemory harvester (mem { job = Harvesting })
@@ -74,7 +75,7 @@ runHarvester harvester@{ creep, mem } =
             else creep `say` "I'm stuck" <#> ignore
   
     Harvesting ->
-      if creep `amtCarrying` resource_energy == carryCapacity creep
+      if energy creep == energyCapacity creep
       then do
         _ <- creep `say` "delivering"
         setMemory harvester (mem { job = Delivering })

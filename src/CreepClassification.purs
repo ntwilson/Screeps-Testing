@@ -18,7 +18,7 @@ import Role.Guard (GuardMemory, Guard)
 import Role.Harvester (HarvesterMemory, Harvester)
 import Role.Upgrader (UpgraderMemory, Upgrader)
 import Screeps.Creep (getAllMemory)
-import Screeps.Spawn (createCreep')
+import Screeps.Spawn (createCreep)
 import Screeps.Types (BodyPartType, Creep, ReturnCode, Spawn)
 
 data CreepMemory 
@@ -58,4 +58,4 @@ classifyCreep creep = do
     Left err -> pure $ Left $ UnknownCreepType $ "couldn't classify creep with memory: " <> JSON.stringify mem <> ". " <> err
 
 spawnCreep :: Spawn -> Array BodyPartType -> Maybe String -> { memory :: CreepMemory, dryRun :: Boolean } -> Effect ReturnCode
-spawnCreep spawn bodyParts name mem = createCreep' spawn bodyParts name mem
+spawnCreep spawn bodyParts name mem = createCreep spawn bodyParts name mem

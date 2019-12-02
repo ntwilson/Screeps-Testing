@@ -12,12 +12,6 @@ import Screeps.Types (Link, ReturnCode, class Structure)
 cooldown :: Link -> Int
 cooldown = unsafeField "cooldown"
 
-energy :: Link -> Int
-energy = unsafeField "energy"
-
-energyCapacity :: Link -> Int
-energyCapacity = unsafeField "energyCapacity"
-
 transferEnergy :: Link -> Link -> Effect ReturnCode
 transferEnergy = runThisEffFn1 "transferEnergy"
 

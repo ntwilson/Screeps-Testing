@@ -7,14 +7,15 @@ module Role.Upgrader
 
 import Prelude
 
+import Classes (energy, energyCapacity)
 import CreepRoles (Role)
 import CreepTasks (harvestEnergy, upgradeNearestController)
 import Data.Argonaut (class DecodeJson, class EncodeJson, fromString, stringify, toString)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
-import Screeps (part_carry, part_move, part_work, resource_energy)
-import Screeps.Creep (amtCarrying, carryCapacity, say, setAllMemory)
+import Screeps (part_carry, part_move, part_work)
+import Screeps.Creep (say, setAllMemory)
 import Screeps.Types (BodyPartType, Creep)
 import Util (ignore)
 
@@ -61,7 +62,7 @@ runUpgrader upgrader@{ creep, mem } =
 
   case mem.job of
     Upgrading ->
-      if amtCarrying creep resource_energy == 0
+      if energy creep == 0
       then do
         _ <- creep `say` "harvesting"
         setMemory upgrader (mem { job = Harvesting })
@@ -71,7 +72,7 @@ runUpgrader upgrader@{ creep, mem } =
         else creep `say` "I'm stuck" <#> ignore
 
     Harvesting -> 
-      if creep `amtCarrying` resource_energy == carryCapacity creep
+      if energy creep == energyCapacity creep
       then do
         _ <- creep `say` "upgrading"
         setMemory upgrader (mem { job = Upgrading }) 

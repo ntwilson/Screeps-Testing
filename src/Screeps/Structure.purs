@@ -9,12 +9,6 @@ import Screeps.FFI (runThisEffFn0, runThisEffFn1, unsafeField)
 import Screeps.Types (Id, ReturnCode, class Structure, StructureType)
 import Unsafe.Coerce (unsafeCoerce)
 
-hits :: forall a. Structure a => a -> Int
-hits = unsafeField "hits"
-
-hitsMax :: forall a. Structure a => a -> Int
-hitsMax = unsafeField "hitsMax"
-
 id :: forall a. Structure a => a -> Id a
 id = unsafeField "id"
 
