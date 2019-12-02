@@ -17,7 +17,7 @@ import Screeps.Creep (build, harvestSource, moveTo, repair, transferToStructure,
 import Screeps.Extension (toExtension)
 import Screeps.Extension as Extension
 import Screeps.Room (controller, find, find')
-import Screeps.RoomObject (pos, room)
+import Screeps.RoomObject (pos, room, targetObj)
 import Screeps.RoomPosition (closestPathOpts, findClosestByPath, findClosestByPath', getRangeTo)
 import Screeps.Ruin as Ruin
 import Screeps.Spawn (toSpawn)
@@ -25,7 +25,7 @@ import Screeps.Spawn as Spawn
 import Screeps.Structure (hits, hitsMax)
 import Screeps.Tower (toTower)
 import Screeps.Tower as Tower
-import Screeps.Types (class Structure, Creep, Ruin, SomeStructure, TargetPosition(..), Tombstone)
+import Screeps.Types (class Structure, Creep, Ruin, SomeStructure, Tombstone)
 import Store (getUsedCapacity)
 import Tombstone (store)
 import Util (ignore)
@@ -38,7 +38,7 @@ upgradeNearestController creep =
     Just controller -> do
       upgradeResult <- creep `upgradeController` controller
       if upgradeResult == err_not_in_range
-      then creep `moveTo` (TargetPos $ pos controller) <#> const true
+      then creep `moveTo` (targetObj controller) <#> const true
       else pure true
   
 harvestEnergy :: Creep -> Effect Boolean
@@ -49,7 +49,7 @@ harvestEnergy creep = do
     Just ruin -> do
       harvestResult <- withdraw creep ruin resource_energy
       if harvestResult == err_not_in_range
-      then creep `moveTo` (TargetPos $ pos ruin) <#> const true
+      then creep `moveTo` (targetObj ruin) <#> const true
       else pure true
     Nothing -> do
       closestTombstoneWithEnergy <- findClosestByPath' (pos creep) find_tombstones (closestPathOpts { filter = Just tombstoneHasEnergy })
@@ -57,7 +57,7 @@ harvestEnergy creep = do
         Just tombstone -> do
           harvestResult <- withdrawFromTombstone creep tombstone resource_energy
           if harvestResult == err_not_in_range
-          then creep `moveTo` (TargetPos $ pos tombstone) <#> const true
+          then creep `moveTo` (targetObj tombstone) <#> const true
           else pure true
         Nothing -> do 
           closestSource <- findClosestByPath (pos creep) find_sources_active 
@@ -66,7 +66,7 @@ harvestEnergy creep = do
             Just targetSource -> do
               harvestResult <- creep `harvestSource` targetSource
               if harvestResult == err_not_in_range
-              then creep `moveTo` (TargetPos $ pos targetSource) <#> const true
+              then creep `moveTo` (targetObj targetSource) <#> const true
               else pure true
   
   where
@@ -88,7 +88,7 @@ deliverToClosestStructure creep = do
     Just energyStructure -> do
       transferResult <- transferToStructure creep energyStructure resource_energy
       if transferResult == err_not_in_range
-      then creep `moveTo` (TargetPos $ pos energyStructure) <#> const true
+      then creep `moveTo` (targetObj energyStructure) <#> const true
       else pure true
     Nothing -> pure false
 
@@ -110,7 +110,7 @@ buildNextConstructionSite creep =
     Just targetSite -> do
       buildResult <- creep `build` targetSite
       if buildResult == err_not_in_range 
-      then creep `moveTo` (TargetPos $ pos targetSite) <#> const true
+      then creep `moveTo` (targetObj targetSite) <#> const true
       else pure true
 
 repairNearestStructure :: Creep -> Effect Boolean
@@ -129,7 +129,7 @@ repairNearestStructure creep = do
     repairIt structure = do 
       repairResult <- repair creep structure
       if repairResult == err_not_in_range
-      then creep `moveTo` (TargetPos $ pos structure) <#> ignore
+      then creep `moveTo` (targetObj structure) <#> ignore
       else pure unit
 
     repairMostDamagedStructure :: Effect Boolean
@@ -138,7 +138,7 @@ repairNearestStructure creep = do
       -- stick with it even if it becomes no longer the most damaged structure.
       case secondMostDamaged of
         Just struct 
-          | (pos creep) `getRangeTo` (TargetPos $ pos struct) < 5 -> 
+          | (pos creep) `getRangeTo` (targetObj struct) < 5 -> 
             repairIt struct <#> const true
 
         _ -> 

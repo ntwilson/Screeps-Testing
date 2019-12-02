@@ -101,38 +101,31 @@ findInRange' pos ctx range filter = try (runThisEffFn3 "findInRange" pos (unwrap
 findPathTo :: RoomPosition -> TargetPosition -> Effect (Either Error Path)
 findPathTo pos (TargetPt x' y') = try (runThisEffFn2 "findPathTo" pos x' y')
 findPathTo pos (TargetPos destPos) = try (runThisEffFn1 "findPathTo" pos destPos)
--- findPathTo pos (TargetObj obj) = try (runThisEffFn1 "findPathTo" pos obj)
 
 findPathTo' :: RoomPosition -> TargetPosition -> PathOptions () -> Effect (Either Error Path)
 findPathTo' pos (TargetPt x' y') opts = try (runThisEffFn3 "findPathTo" pos x' y' (selectMaybes opts))
 findPathTo' pos (TargetPos destPos) opts = try (runThisEffFn2 "findPathTo" pos destPos (selectMaybes opts))
--- findPathTo' pos (TargetObj obj) opts = try (runThisEffFn2 "findPathTo" pos obj (selectMaybes opts))
 
 getDirectionTo :: RoomPosition -> TargetPosition -> Direction
 getDirectionTo pos (TargetPt x' y') = runThisFn2 "getDirectionTo" pos x' y'
 getDirectionTo pos (TargetPos otherPos) = runThisFn1 "getDirectionTo" pos otherPos
--- getDirectionTo pos (TargetObj obj) = runThisFn1 "getDirectionTo" pos obj
 
 -- | May return Infinity
 getRangeTo :: RoomPosition -> TargetPosition -> Int
 getRangeTo pos (TargetPt x' y') = runThisFn2 "getRangeTo" pos x' y'
 getRangeTo pos (TargetPos destPos) = runThisFn1 "getRangeTo" pos destPos
--- getRangeTo pos (TargetObj obj) = runThisFn1 "getRangeTo" pos obj
 
 inRangeTo :: RoomPosition -> TargetPosition -> Int -> Boolean
 inRangeTo pos (TargetPt x' y') range = runThisFn3 "inRangeTo" pos x' y' range
 inRangeTo pos (TargetPos destPos) range = runThisFn2 "inRangeTo" pos destPos range
--- inRangeTo pos (TargetObj obj) range = runThisFn2 "inRangeTo" pos obj range
 
 isEqualTo :: RoomPosition -> TargetPosition -> Boolean
 isEqualTo pos (TargetPt x' y') = runThisFn2 "isEqualTo" pos x' y'
 isEqualTo pos (TargetPos otherPos) = runThisFn1 "isEqualTo" pos otherPos
--- isEqualTo pos (TargetObj obj) = runThisFn1 "isEqualTo" pos obj
 
 isNearTo :: RoomPosition -> TargetPosition -> Boolean
 isNearTo pos (TargetPt x' y') = runThisFn2 "isNearTo" pos x' y'
 isNearTo pos (TargetPos otherPos) = runThisFn1 "isNearTo" pos otherPos
--- isNearTo pos (TargetObj obj) = runThisFn1 "isNearTo" pos obj
 
 -- look function omitted - use lookFor
 

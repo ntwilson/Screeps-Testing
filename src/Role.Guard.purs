@@ -11,9 +11,9 @@ import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Screeps (err_not_in_range, find_hostile_creeps, part_attack, part_move, part_tough)
 import Screeps.Creep (attackCreep, moveTo, setAllMemory)
-import Screeps.RoomObject (pos)
+import Screeps.RoomObject (pos, targetObj)
 import Screeps.RoomPosition (findClosestByPath)
-import Screeps.Types (BodyPartType, Creep, TargetPosition(..))
+import Screeps.Types (BodyPartType, Creep)
 import Util (ignoreM)
 
 constructionPlans :: Array (Array BodyPartType)
@@ -40,5 +40,5 @@ runGuard guard@{ creep, mem } = do
     Just hostile -> do
       result <- creep `attackCreep` hostile
       if result == err_not_in_range 
-      then creep `moveTo` (TargetPos (pos hostile)) # ignoreM
+      then creep `moveTo` (targetObj hostile) # ignoreM
       else pure unit

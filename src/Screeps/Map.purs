@@ -44,7 +44,6 @@ getRoomLinearDistance name1 name2 = runThisFn2 "getRoomLinearDistance" Game.map 
 getTerrainAt :: TargetPosition -> String -> Terrain
 getTerrainAt (TargetPt x y) roomName = runThisFn3 "getTerrainAt" Game.map x y roomName
 getTerrainAt (TargetPos pos) roomName = runThisFn2 "getTerrainAt" Game.map pos roomName
--- getTerrainAt (TargetObj obj) roomName = runThisFn2 "getTerrainAt" Game.map obj roomName
 
 isRoomProtected :: String -> Boolean
 isRoomProtected roomName = runThisFn1 "isRoomProtected" Game.map roomName

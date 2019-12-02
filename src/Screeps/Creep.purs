@@ -150,12 +150,10 @@ moveByPath = runThisEffFn1 "moveByPath"
 moveTo :: Creep -> TargetPosition -> Effect ReturnCode
 moveTo creep (TargetPt x y) = runThisEffFn2 "moveTo" creep x y
 moveTo creep (TargetPos pos) = runThisEffFn1 "moveTo" creep pos
--- moveTo creep (TargetObj obj) = runThisEffFn1 "moveTo" creep obj
 
 moveTo' :: Creep -> TargetPosition -> MoveOptions -> Effect ReturnCode
 moveTo' creep (TargetPt x y) opts = runThisEffFn3 "moveTo" creep x y (selectMaybes opts)
 moveTo' creep (TargetPos pos) opts = runThisEffFn2 "moveTo" creep pos (selectMaybes opts)
--- moveTo' creep (TargetObj obj) opts = runThisEffFn2 "moveTo" creep obj (selectMaybes opts)
 
 notifyWhenAttacked :: Creep -> Boolean -> Effect ReturnCode
 notifyWhenAttacked = runThisEffFn1 "notifyWhenAttacked"
