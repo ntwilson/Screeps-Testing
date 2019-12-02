@@ -9,16 +9,16 @@ import Screeps.Creep (hits, hitsMax)
 import Screeps.RoomObject (pos)
 import Screeps.RoomPosition (findClosestByRange, findClosestByRange')
 import Screeps.Tower (attack, heal)
-import Screeps.Types (FindContext(..), Tower, Creep)
+import Screeps.Types (Creep, Tower)
 import Util (ignoreM)
 
 runTower :: Tower -> Effect Unit
 runTower tower = do 
-  findResult <- (pos tower) `findClosestByRange` (OfType find_hostile_creeps)
+  findResult <- (pos tower) `findClosestByRange` find_hostile_creeps
   case findResult of 
     Just hostile -> tower `attack` hostile # ignoreM
     Nothing -> do
-      findResult2 <- findClosestByRange' (pos tower) (OfType find_my_creeps) wounded
+      findResult2 <- findClosestByRange' (pos tower) find_my_creeps wounded
       case findResult2 of 
         Just woundedCreep -> tower `heal` woundedCreep # ignoreM
         Nothing -> pure unit

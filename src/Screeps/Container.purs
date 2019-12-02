@@ -5,7 +5,7 @@ import Data.Maybe (Maybe)
 
 import Screeps.Structure (unsafeCast)
 import Screeps.Constants (structure_container)
-import Screeps.Types (Container, ResourceType(ResourceType), Structure)
+import Screeps.Types (Container, ResourceType(ResourceType), class Structure)
 import Screeps.FFI (unsafeField)
 
 foreign import data Store :: Type
@@ -19,5 +19,5 @@ storeGet s (ResourceType res) = unsafeField res (store s)
 storeCapacity :: Container -> Int
 storeCapacity = unsafeField "storeCapacity"
 
-toContainer :: forall a. Structure a -> Maybe Container
+toContainer :: forall a. Structure a => a -> Maybe Container
 toContainer = unsafeCast structure_container

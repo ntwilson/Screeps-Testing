@@ -4,7 +4,7 @@ import Prelude
 
 import Data.Maybe (Maybe)
 import Screeps.FFI (toMaybe, unsafeField)
-import Screeps.Types (ResourceType(..), Store)
+import Screeps.Types (Container, ResourceType(..), Store)
 
 -- | returns Nothing if that resource type is not valid for that
 -- | type of Store
@@ -28,3 +28,8 @@ getFreeCapacity store resource = do
   usedCapacity <- store `getUsedCapacity` resource
   pure $ totalCapacity - usedCapacity
 
+class HasStorage a where
+  storage :: a -> Store
+
+instance containerStorage :: HasStorage Container where
+  storage container = container # unsafeField "storage"

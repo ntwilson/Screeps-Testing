@@ -25,7 +25,7 @@ import Screeps.Spawn as Spawn
 import Screeps.Structure (hits, hitsMax)
 import Screeps.Tower (toTower)
 import Screeps.Tower as Tower
-import Screeps.Types (Creep, FindContext(..), Ruin, Structure, TargetPosition(..), Tombstone)
+import Screeps.Types (class Structure, Creep, Ruin, SomeStructure, TargetPosition(..), Tombstone)
 import Store (getUsedCapacity)
 import Tombstone (store)
 import Util (ignore)
@@ -38,35 +38,35 @@ upgradeNearestController creep =
     Just controller -> do
       upgradeResult <- creep `upgradeController` controller
       if upgradeResult == err_not_in_range
-      then creep `moveTo` (TargetObj controller) <#> const true
+      then creep `moveTo` (TargetPos $ pos controller) <#> const true
       else pure true
   
 harvestEnergy :: Creep -> Effect Boolean
 harvestEnergy creep = do
-  closestRuin <- findClosestByPath' (pos creep) (OfType find_ruins) (closestPathOpts { filter = Just ruinHasEnergy })
+  closestRuin <- findClosestByPath' (pos creep) find_ruins (closestPathOpts { filter = Just ruinHasEnergy })
   
   case closestRuin of
     Just ruin -> do
       harvestResult <- withdraw creep ruin resource_energy
       if harvestResult == err_not_in_range
-      then creep `moveTo` (TargetObj ruin) <#> const true
+      then creep `moveTo` (TargetPos $ pos ruin) <#> const true
       else pure true
     Nothing -> do
-      closestTombstoneWithEnergy <- findClosestByPath' (pos creep) (OfType find_tombstones) (closestPathOpts { filter = Just tombstoneHasEnergy })
+      closestTombstoneWithEnergy <- findClosestByPath' (pos creep) find_tombstones (closestPathOpts { filter = Just tombstoneHasEnergy })
       case closestTombstoneWithEnergy of
         Just tombstone -> do
           harvestResult <- withdrawFromTombstone creep tombstone resource_energy
           if harvestResult == err_not_in_range
-          then creep `moveTo` (TargetObj tombstone) <#> const true
+          then creep `moveTo` (TargetPos $ pos tombstone) <#> const true
           else pure true
         Nothing -> do 
-          closestSource <- findClosestByPath (pos creep) (OfType find_sources_active) 
+          closestSource <- findClosestByPath (pos creep) find_sources_active 
           case closestSource of
             Nothing -> pure false
             Just targetSource -> do
               harvestResult <- creep `harvestSource` targetSource
               if harvestResult == err_not_in_range
-              then creep `moveTo` (TargetObj targetSource) <#> const true
+              then creep `moveTo` (TargetPos $ pos targetSource) <#> const true
               else pure true
   
   where
@@ -83,17 +83,17 @@ harvestEnergy creep = do
 
 deliverToClosestStructure :: Creep -> Effect Boolean
 deliverToClosestStructure creep = do
-  closestStructure <- findClosestByPath' (pos creep) (OfType find_my_structures) (closestPathOpts { filter = Just structureFilter })
+  closestStructure <- findClosestByPath' (pos creep) find_my_structures (closestPathOpts { filter = Just structureFilter })
   case closestStructure of
-    Just (energyStructure :: forall a. Structure a) -> do
+    Just energyStructure -> do
       transferResult <- transferToStructure creep energyStructure resource_energy
       if transferResult == err_not_in_range
-      then creep `moveTo` (TargetObj energyStructure) <#> const true
+      then creep `moveTo` (TargetPos $ pos energyStructure) <#> const true
       else pure true
     Nothing -> pure false
 
   where
-    structureFilter :: (forall a. Structure a) -> Boolean
+    structureFilter :: SomeStructure -> Boolean
     structureFilter x 
       | Just spawn <- toSpawn x = Spawn.energy spawn < Spawn.energyCapacity spawn
       | Just extension <- toExtension x = Extension.energy extension < Extension.energyCapacity extension
@@ -110,26 +110,26 @@ buildNextConstructionSite creep =
     Just targetSite -> do
       buildResult <- creep `build` targetSite
       if buildResult == err_not_in_range 
-      then creep `moveTo` (TargetObj targetSite) <#> const true
+      then creep `moveTo` (TargetPos $ pos targetSite) <#> const true
       else pure true
 
 repairNearestStructure :: Creep -> Effect Boolean
 repairNearestStructure creep = do
-  nearestDamagedTower <- findClosestByPath' (pos creep) (OfType find_my_structures) (closestPathOpts { filter = Just isDamagedTower })
+  nearestDamagedTower <- findClosestByPath' (pos creep) find_my_structures (closestPathOpts { filter = Just isDamagedTower })
   case nearestDamagedTower of 
-    Just (structure :: forall a. Structure a) -> repairIt structure <#> const true
+    Just structure -> repairIt structure <#> const true
     Nothing -> repairMostDamagedStructure
   
   where 
-    isDamagedTower (structure :: forall a. Structure a)
+    isDamagedTower structure
       | Just tower <- toTower structure = hits tower < hitsMax tower
       | otherwise = false  
 
-    repairIt :: (forall a. Structure a) -> Effect Unit
+    repairIt :: forall a. Structure a => a -> Effect Unit
     repairIt structure = do 
-      repairResult <- creep `repair` structure
+      repairResult <- repair creep structure
       if repairResult == err_not_in_range
-      then creep `moveTo` (TargetObj structure) <#> ignore
+      then creep `moveTo` (TargetPos $ pos structure) <#> ignore
       else pure unit
 
     repairMostDamagedStructure :: Effect Boolean
@@ -137,29 +137,29 @@ repairNearestStructure creep = do
       -- don't bounce back and forth between two structures.  If you're already repairing one structure
       -- stick with it even if it becomes no longer the most damaged structure.
       case secondMostDamaged of
-        Just (struct :: forall a. Structure a) 
-          | (pos creep) `getRangeTo` (TargetObj struct) < 5 -> 
+        Just struct 
+          | (pos creep) `getRangeTo` (TargetPos $ pos struct) < 5 -> 
             repairIt struct <#> const true
 
         _ -> 
           case mostDamagedStructure of
-            Just (struct :: forall a. Structure a) -> repairIt struct <#> const true
+            Just struct -> repairIt struct <#> const true
             Nothing -> pure false
-            
-    structuresInOrderOfHealth :: Array (forall a. Structure a)
+
+    structuresInOrderOfHealth :: Array SomeStructure
     structuresInOrderOfHealth =
       let 
         allStructures = find' (room creep) find_structures (\struct -> hits struct < min (1_000_000) (hitsMax struct))
         structureHealths = 
           allStructures 
-          <#> \a -> { structure: (a :: forall b. Structure b), health: toNumber (hits a) / toNumber (min 1_000_000 (hitsMax a)) }
+          <#> \a -> { structure: a, health: toNumber (hits a) / toNumber (min 1_000_000 (hitsMax a)) }
       in
         structureHealths 
           # sortBy (\{health: healthA} {health: healthB} -> compare healthA healthB)
           # map _.structure
 
-    mostDamagedStructure :: Maybe (forall a. Structure a)
+    mostDamagedStructure :: Maybe SomeStructure
     mostDamagedStructure = head structuresInOrderOfHealth 
 
-    secondMostDamaged :: Maybe (forall a. Structure a)
+    secondMostDamaged :: Maybe SomeStructure
     secondMostDamaged = structuresInOrderOfHealth `index` 1

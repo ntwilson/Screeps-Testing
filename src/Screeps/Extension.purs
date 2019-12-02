@@ -6,7 +6,7 @@ import Data.Maybe (Maybe)
 import Screeps.Constants (structure_extension)
 import Screeps.FFI (unsafeField)
 import Screeps.Structure (unsafeCast)
-import Screeps.Types (Extension, Structure)
+import Screeps.Types (Extension, class Structure)
 
 energy :: Extension -> Int
 energy = unsafeField "energy"
@@ -14,5 +14,5 @@ energy = unsafeField "energy"
 energyCapacity :: Extension -> Int
 energyCapacity = unsafeField "energyCapacity"
 
-toExtension :: forall a. Structure a -> Maybe Extension
+toExtension :: forall a. Structure a => a -> Maybe Extension
 toExtension = unsafeCast structure_extension

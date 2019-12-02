@@ -6,10 +6,10 @@ import Data.Maybe (Maybe)
 import Screeps.Constants (structure_keeper_lair)
 import Screeps.FFI (unsafeField)
 import Screeps.Structure (unsafeCast)
-import Screeps.Types (KeeperLair, Structure)
+import Screeps.Types (KeeperLair, class Structure)
 
 ticksToSpawn :: KeeperLair -> Int
 ticksToSpawn = unsafeField "ticksToSpawn"
 
-toKeeperLair :: forall a. Structure a -> Maybe KeeperLair
+toKeeperLair :: forall a. Structure a => a -> Maybe KeeperLair
 toKeeperLair = unsafeCast structure_keeper_lair

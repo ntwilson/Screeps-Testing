@@ -27,7 +27,7 @@ setColor = runThisEffFn1 "setColor"
 setColors :: Flag -> Color -> Color -> Effect ReturnCode
 setColors = runThisEffFn2 "setColor"
 
-setPosition :: forall a. Flag -> TargetPosition a -> Effect ReturnCode
+setPosition :: Flag -> TargetPosition -> Effect ReturnCode
 setPosition flag (TargetPt x y) = runThisEffFn2 "setPosition" flag x y
-setPosition flag (TargetObj obj) = runThisEffFn1 "setPosition" flag obj
 setPosition flag (TargetPos pos) = runThisEffFn1 "setPosition" flag pos
+-- setPosition flag (TargetObj obj) = runThisEffFn1 "setPosition" flag obj

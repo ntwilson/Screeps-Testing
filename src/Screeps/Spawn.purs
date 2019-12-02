@@ -11,7 +11,7 @@ import Effect (Effect)
 import Screeps.Constants (structure_spawn)
 import Screeps.FFI (runThisEffFn1, runThisEffFn2, runThisFn1, toMaybe, unsafeField)
 import Screeps.Structure (unsafeCast)
-import Screeps.Types (BodyPartType, Creep, ReturnCode, Spawn, Structure)
+import Screeps.Types (BodyPartType, Creep, ReturnCode, Spawn, class Structure)
 
 type CreepInfo =
   { name :: String
@@ -63,5 +63,5 @@ recycleCreep = runThisEffFn1 "recycleCreep"
 renewCreep :: Spawn -> Creep -> Effect ReturnCode
 renewCreep = runThisEffFn1 "renewCreep"
 
-toSpawn :: forall a. Structure a -> Maybe Spawn
+toSpawn :: forall a. Structure a => a -> Maybe Spawn
 toSpawn = unsafeCast structure_spawn

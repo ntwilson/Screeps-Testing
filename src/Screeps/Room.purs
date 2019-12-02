@@ -2,12 +2,12 @@
 module Screeps.Room where
 
 import Prelude
-import Effect (Effect)
-import Data.Either (Either(Left,Right))
-import Data.Maybe (Maybe(Nothing))
 
-import Screeps.Types (Controller, Color, FilterFn, FindType, LookType, Mode, Path, ReturnCode, Room, RoomPosition, Storage, StructureType, TargetPosition(..), Terminal)
+import Data.Either (Either(Left, Right))
+import Data.Maybe (Maybe(Nothing))
+import Effect (Effect)
 import Screeps.FFI (runThisEffFn1, runThisEffFn2, runThisEffFn3, runThisEffFn4, runThisEffFn5, runThisFn1, runThisFn2, runThisFn3, selectMaybes, toMaybe, unsafeField)
+import Screeps.Types (Color, Controller, FilterFn, FindType, LookType, Mode, Path, ReturnCode, Room, RoomPosition, Storage, StructureType, TargetPosition(..), Terminal)
 
 foreign import data RoomGlobal :: Type
 foreign import getRoomGlobal :: Effect RoomGlobal
@@ -67,33 +67,33 @@ serializePath = runThisFn1 "serializePath"
 deserializePath :: RoomGlobal -> String -> Path
 deserializePath = runThisFn1 "deserializePath"
 
-createConstructionSite :: forall a. Room -> TargetPosition a -> StructureType -> Effect ReturnCode
+createConstructionSite :: Room -> TargetPosition -> StructureType -> Effect ReturnCode
 createConstructionSite room (TargetPt x' y') strucType = runThisEffFn3 "createConstructionSite" room x' y' strucType
 createConstructionSite room (TargetPos pos) strucType = runThisEffFn2 "createConstructionSite" room pos strucType
-createConstructionSite room (TargetObj obj) strucType = runThisEffFn2 "createConstructionSite" room obj strucType
+-- createConstructionSite room (TargetObj obj) strucType = runThisEffFn2 "createConstructionSite" room obj strucType
 
-createFlag :: forall a. Room -> TargetPosition a -> Effect ReturnCode
+createFlag :: Room -> TargetPosition -> Effect ReturnCode
 createFlag room (TargetPt x' y') = runThisEffFn2 "createFlag" room x' y'
 createFlag room (TargetPos pos) = runThisEffFn1 "createFlag" room pos
-createFlag room (TargetObj obj) = runThisEffFn1 "createFlag" room obj
+-- createFlag room (TargetObj obj) = runThisEffFn1 "createFlag" room obj
 
-createFlagWithName :: forall a. Room -> TargetPosition a -> String -> Effect ReturnCode
+createFlagWithName :: Room -> TargetPosition -> String -> Effect ReturnCode
 createFlagWithName room (TargetPt x' y') name' = runThisEffFn3 "createFlag" room x' y' name'
 createFlagWithName room (TargetPos pos) name' = runThisEffFn2 "createFlag" room pos name'
-createFlagWithName room (TargetObj obj) name' = runThisEffFn2 "createFlag" room obj name'
+-- createFlagWithName room (TargetObj obj) name' = runThisEffFn2 "createFlag" room obj name'
 
-createFlagWithColor :: forall a. Room -> TargetPosition a -> String -> Color -> Effect ReturnCode
+createFlagWithColor :: Room -> TargetPosition -> String -> Color -> Effect ReturnCode
 createFlagWithColor room (TargetPt x' y') name' color = runThisEffFn4 "createFlag" room x' y' name' color
 createFlagWithColor room (TargetPos pos) name' color = runThisEffFn3 "createFlag" room pos name' color
-createFlagWithColor room (TargetObj obj) name' color = runThisEffFn3 "createFlag" room obj name' color
+-- createFlagWithColor room (TargetObj obj) name' color = runThisEffFn3 "createFlag" room obj name' color
 
-createFlagWithColors :: forall a. Room -> TargetPosition a -> String -> Color -> Color -> Effect ReturnCode
+createFlagWithColors :: Room -> TargetPosition -> String -> Color -> Color -> Effect ReturnCode
 createFlagWithColors room (TargetPt x' y') name' color color2 =
   runThisEffFn5 "createFlag" room x' y' name' color color2
 createFlagWithColors room (TargetPos pos) name' color color2 =
   runThisEffFn4 "createFlag" room pos name' color color2
-createFlagWithColors room (TargetObj obj) name' color color2 =
-  runThisEffFn4 "createFlag" room obj name' color color2
+-- createFlagWithColors room (TargetObj obj) name' color color2 =
+--   runThisEffFn4 "createFlag" room obj name' color color2
 
 find :: forall a. Room -> FindType a -> Array a
 find = runThisFn1 "find"
@@ -126,10 +126,10 @@ getPositionAt = runThisFn2 "getPositionAt"
 -- lookAt omitted - use lookForAt
 -- lookAtArea omitted - use lookForAtArea
 
-lookForAt :: forall a. Room -> LookType a -> TargetPosition a -> Array a
+lookForAt :: forall a. Room -> LookType a -> TargetPosition -> Array a
 lookForAt room lookType (TargetPt x' y') = runThisFn3 "lookForAt" room lookType x' y'
 lookForAt room lookType (TargetPos pos) = runThisFn2 "lookForAt" room lookType pos
-lookForAt room lookType (TargetObj obj) = runThisFn2 "lookForAt" room lookType obj
+-- lookForAt room lookType (TargetObj (obj :: forall b. RoomObject b => b)) = runThisFn2 "lookForAt" room lookType obj
 
 -- TODO: implement this
 -- lookForAtArea :: forall a. Room -> LookType a -> Int -> Int -> Int -> Int -> Boolean -> Array a

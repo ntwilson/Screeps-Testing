@@ -2,88 +2,157 @@
 module Screeps.Types where
 
 import Prelude
+
 import Data.Generic.Rep (class Generic)
-import Data.Generic.Rep.Show (genericShow)
 import Data.Generic.Rep.Eq (genericEq)
+import Data.Generic.Rep.Show (genericShow)
 import Data.Map.Internal (Map)
 
 foreign import data GameGlobal :: Type
+
+class RoomObject a
+class RoomObject a <= Structure a
+class Structure a <= OwnedStructure a 
+
+-- Some screeps collections contain many different types of structures in one non-homogenous collection.
+-- This represents a parent type for any kind of structure.  Each concrete structure module has a `to_`
+-- function to convert from this parent type to the concrete type. 
+foreign import data SomeStructure :: Type
+instance roomObjSomeStructure :: RoomObject SomeStructure
+instance structureSomeStructure :: Structure SomeStructure
 
 foreign import data Market :: Type
 foreign import data Room :: Type
 foreign import data RoomPosition :: Type
 foreign import data WorldMap :: Type
 
-type RoomObject a = RawRoomObject a
-type Structure a = RoomObject (RawStructure a)
-type OwnedStructure a = Structure (RawOwnedStructure a)
+foreign import data Container :: Type
+instance roomObjContainer :: RoomObject Container
+instance structureContainer :: Structure Container
 
-type Container = Structure RawContainer
-type Controller = OwnedStructure RawController
-type Extension = OwnedStructure RawExtension
-type Extractor = OwnedStructure RawExtractor
-type KeeperLair = OwnedStructure RawKeeperLair
-type Lab = OwnedStructure RawLab
-type Link = OwnedStructure RawLink
-type Nuker = OwnedStructure RawNuker
-type Observer = OwnedStructure RawObserver
-type Portal = OwnedStructure RawPortal
-type PowerBank = OwnedStructure RawPowerBank
-type PowerSpawn = OwnedStructure RawPowerSpawn
-type Rampart = OwnedStructure RawRampart
-type Road = OwnedStructure RawRoad
-type Spawn = OwnedStructure RawSpawn
-type Storage = OwnedStructure RawStorage
-type Terminal = OwnedStructure RawTerminal
-type Tower = OwnedStructure RawTower
-type Wall = OwnedStructure RawWall
-
-type Ruin = Structure RawRuin
-type Tombstone = RoomObject RawTombstone
-
-type ConstructionSite = RoomObject RawConstructionSite
-type Creep = RoomObject RawCreep
-type Flag = RoomObject RawFlag
-type Mineral = RoomObject RawMineral
-type Nuke = RoomObject RawNuke
-type Resource = RoomObject RawResource
-type Source = RoomObject RawSource
+foreign import data Ruin :: Type
+instance roomObjRuin :: RoomObject Ruin
+instance structureRuin :: Structure Ruin
 
 
-foreign import data RawOwnedStructure :: Type -> Type
-foreign import data RawRoomObject :: Type -> Type
-foreign import data RawStructure :: Type -> Type
+foreign import data Controller :: Type
+instance roomObjController :: RoomObject Controller
+instance structureController :: Structure Controller
+instance ownedStructController :: OwnedStructure Controller
 
-foreign import data RawContainer :: Type
-foreign import data RawController :: Type
-foreign import data RawExtension :: Type
-foreign import data RawExtractor :: Type
-foreign import data RawKeeperLair :: Type
-foreign import data RawLab :: Type
-foreign import data RawLink :: Type
-foreign import data RawNuker :: Type
-foreign import data RawObserver :: Type
-foreign import data RawPortal :: Type
-foreign import data RawPowerBank :: Type
-foreign import data RawPowerSpawn :: Type
-foreign import data RawRampart :: Type
-foreign import data RawRoad :: Type
-foreign import data RawSpawn :: Type
-foreign import data RawStorage :: Type
-foreign import data RawTerminal :: Type
-foreign import data RawTower :: Type
-foreign import data RawWall :: Type
+foreign import data Extension :: Type
+instance roomObjExtension :: RoomObject Extension
+instance structureExtension :: Structure Extension
+instance ownedStructExtension :: OwnedStructure Extension
 
-foreign import data RawRuin :: Type
-foreign import data RawTombstone :: Type
+foreign import data Extractor :: Type
+instance roomObjExtractor :: RoomObject Extractor
+instance structureExtractor :: Structure Extractor
+instance ownedStructExtractor :: OwnedStructure Extractor
 
-foreign import data RawConstructionSite :: Type
-foreign import data RawCreep :: Type
-foreign import data RawFlag :: Type
-foreign import data RawMineral :: Type
-foreign import data RawNuke :: Type
-foreign import data RawResource :: Type
-foreign import data RawSource :: Type
+foreign import data KeeperLair :: Type
+instance roomObjKeeperLair :: RoomObject KeeperLair
+instance structureKeeperLair :: Structure KeeperLair
+instance ownedStructKeeperLair :: OwnedStructure KeeperLair
+
+foreign import data Lab :: Type
+instance roomObjLab :: RoomObject Lab
+instance structureLab :: Structure Lab
+instance ownedStructLab :: OwnedStructure Lab
+
+foreign import data Link :: Type
+instance roomObjLink :: RoomObject Link
+instance structureLink :: Structure Link
+instance ownedStructLink :: OwnedStructure Link
+
+foreign import data Nuker :: Type
+instance roomObjNuker :: RoomObject Nuker
+instance structureNuker :: Structure Nuker
+instance ownedStructNuker :: OwnedStructure Nuker
+
+foreign import data Observer :: Type
+instance roomObjObserver :: RoomObject Observer
+instance structureObserver :: Structure Observer
+instance ownedStructObserver :: OwnedStructure Observer
+
+foreign import data Portal :: Type
+instance roomObjPortal :: RoomObject Portal
+instance structurePortal :: Structure Portal
+instance ownedStructPortal :: OwnedStructure Portal
+
+foreign import data PowerBank :: Type
+instance roomObjPowerBank :: RoomObject PowerBank
+instance structurePowerBank :: Structure PowerBank
+instance ownedStructPowerBank :: OwnedStructure PowerBank
+
+foreign import data PowerSpawn :: Type
+instance roomObjPowerSpawn :: RoomObject PowerSpawn
+instance structurePowerSpawn :: Structure PowerSpawn
+instance ownedStructPowerSpawn :: OwnedStructure PowerSpawn
+
+foreign import data Rampart :: Type
+instance roomObjRampart :: RoomObject Rampart
+instance structureRampart :: Structure Rampart
+instance ownedStructRampart :: OwnedStructure Rampart
+
+foreign import data Road :: Type
+instance roomObjRoad :: RoomObject Road
+instance structureRoad :: Structure Road
+instance ownedStructRoad :: OwnedStructure Road
+
+foreign import data Spawn :: Type
+instance roomObjSpawn :: RoomObject Spawn
+instance structureSpawn :: Structure Spawn
+instance ownedStructSpawn :: OwnedStructure Spawn
+
+foreign import data Storage :: Type
+instance roomObjStorage :: RoomObject Storage
+instance structureStorage :: Structure Storage
+instance ownedStructStorage :: OwnedStructure Storage
+
+foreign import data Terminal :: Type
+instance roomObjTerminal :: RoomObject Terminal
+instance structureTerminal :: Structure Terminal
+instance ownedStructTerminal :: OwnedStructure Terminal
+
+foreign import data Tower :: Type
+instance roomObjTower :: RoomObject Tower
+instance structureTower :: Structure Tower
+instance ownedStructTower :: OwnedStructure Tower
+
+foreign import data Wall :: Type
+instance roomObjWall :: RoomObject Wall
+instance structureWall :: Structure Wall
+instance ownedStructWall :: OwnedStructure Wall
+
+
+foreign import data Tombstone :: Type
+instance roomObjTombstone :: RoomObject Tombstone
+
+foreign import data ConstructionSite :: Type
+instance roomObjConstructionSite :: RoomObject ConstructionSite
+
+foreign import data Creep :: Type
+instance roomObjCreep :: RoomObject Creep
+
+foreign import data Flag :: Type
+instance roomObjFlag :: RoomObject Flag
+
+foreign import data Mineral :: Type
+instance roomObjMineral :: RoomObject Mineral
+
+foreign import data Nuke :: Type
+instance roomObjNuke :: RoomObject Nuke
+
+foreign import data Resource :: Type
+instance roomObjResource :: RoomObject Resource
+
+foreign import data Source :: Type
+instance roomObjSource :: RoomObject Source
+
+
+
+
 
 foreign import data Store :: Type
 
@@ -160,12 +229,9 @@ type StructureInfo = Map String Int
 
 type FilterFn a = a -> Boolean
 
-data TargetPosition a =
-  TargetPt Int Int |
-  TargetObj (RoomObject a) |
-  TargetPos RoomPosition
+data TargetPosition 
+  = TargetPt Int Int
+  | TargetPos RoomPosition
+--  | TargetObj (forall a. RoomObject a => a)
 
-data FindContext a =
-  OfType (FindType a) |
-  OfObj (Array a) | -- should be RoomObject a
-  OfPos (Array RoomPosition)
+

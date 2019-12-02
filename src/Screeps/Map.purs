@@ -41,10 +41,10 @@ findRoute' from to = runThisFn2 "findRoute" Game.map from to
 getRoomLinearDistance :: String -> String -> Int
 getRoomLinearDistance name1 name2 = runThisFn2 "getRoomLinearDistance" Game.map name1 name2
 
-getTerrainAt :: forall a. TargetPosition a -> String -> Terrain
+getTerrainAt :: TargetPosition -> String -> Terrain
 getTerrainAt (TargetPt x y) roomName = runThisFn3 "getTerrainAt" Game.map x y roomName
 getTerrainAt (TargetPos pos) roomName = runThisFn2 "getTerrainAt" Game.map pos roomName
-getTerrainAt (TargetObj obj) roomName = runThisFn2 "getTerrainAt" Game.map obj roomName
+-- getTerrainAt (TargetObj obj) roomName = runThisFn2 "getTerrainAt" Game.map obj roomName
 
 isRoomProtected :: String -> Boolean
 isRoomProtected roomName = runThisFn1 "isRoomProtected" Game.map roomName

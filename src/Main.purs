@@ -28,7 +28,7 @@ import Screeps.Game (creeps, getGameGlobal, spawns)
 import Screeps.Room (controller, energyAvailable, energyCapacityAvailable, find)
 import Screeps.RoomObject (room)
 import Screeps.Tower (toTower)
-import Screeps.Types (BodyPartType, Creep, Spawn, Structure)
+import Screeps.Types (BodyPartType, Creep, Spawn)
 import Util (bodyPartCost, (<<#>>))
 
 ignore :: forall a. a -> Unit
@@ -144,7 +144,7 @@ loop = do
       shouldSpawn = shouldSpawnCreep { nCreeps, totalCapacity } || anyHostiles
       controllerLevel = controller (room spawn) <#> level # fromMaybe 0
       currentCapacity = energyAvailable (room spawn)
-      towers = find (room spawn) find_my_structures # mapMaybe (\(x :: forall a. Structure a) -> toTower x)
+      towers = find (room spawn) find_my_structures # mapMaybe (\x -> toTower x)
 
     if energyAvailable (room spawn) == totalCapacity && shouldSpawn && canSpawn
     then spawnNewCreeps spawn currentCapacity controllerLevel anyHostiles

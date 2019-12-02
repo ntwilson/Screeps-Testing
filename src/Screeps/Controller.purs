@@ -7,7 +7,7 @@ import Effect (Effect)
 import Screeps.Constants (structure_controller)
 import Screeps.FFI (runThisEffFn0, unsafeField)
 import Screeps.Structure (unsafeCast)
-import Screeps.Types (Controller, ReturnCode, Structure)
+import Screeps.Types (Controller, ReturnCode, class Structure)
 
 level :: Controller -> Int
 level = unsafeField "level"
@@ -30,5 +30,5 @@ upgradeBlocked = unsafeField "upgradeBlocked"
 unclaim :: Controller -> Effect ReturnCode
 unclaim = runThisEffFn0 "unclaim"
 
-toController :: forall a. Structure a -> Maybe Controller
+toController :: forall a. Structure a => a -> Maybe Controller
 toController = unsafeCast structure_controller

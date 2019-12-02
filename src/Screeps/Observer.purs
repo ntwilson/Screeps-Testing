@@ -7,10 +7,10 @@ import Data.Maybe (Maybe)
 import Screeps.Constants (structure_observer)
 import Screeps.FFI (runThisEffFn1)
 import Screeps.Structure (unsafeCast)
-import Screeps.Types (Observer, ReturnCode, Structure)
+import Screeps.Types (Observer, ReturnCode, class Structure)
 
 observeRoom :: Observer -> String -> Effect ReturnCode
 observeRoom obs roomName = runThisEffFn1 "observeRoom" obs roomName
 
-toObserver :: forall a. Structure a -> Maybe Observer
+toObserver :: forall a. Structure a => a -> Maybe Observer
 toObserver = unsafeCast structure_observer
