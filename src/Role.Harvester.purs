@@ -7,7 +7,7 @@ module Role.Harvester
 
 import Prelude
 
-import Classes (energy, energyCapacity)
+import Classes (energy, energyCapacity, setMemory)
 import CreepRoles (Role)
 import CreepTasks (buildNextConstructionSite, deliverToClosestStructure, harvestEnergy, upgradeNearestController)
 import Data.Argonaut (class DecodeJson, class EncodeJson, fromString, stringify, toString)
@@ -15,7 +15,7 @@ import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Screeps (part_carry, part_move, part_work)
-import Screeps.Creep (say, setAllMemory)
+import Screeps.Creep (say)
 import Screeps.Types (BodyPartType, Creep)
 import Util (ignore)
 
@@ -52,9 +52,8 @@ instance decodeJobJson :: DecodeJson Job where
     | Just "harvesting" <- toString json = Right Harvesting
     | otherwise = Left $ "Unable to recognize harvester job: " <> stringify json
 
-setMemory :: Harvester -> HarvesterMemory -> Effect Unit
-setMemory { creep } mem =  
-  setAllMemory creep mem
+setHarvesterMemory :: Harvester -> HarvesterMemory -> Effect Unit
+setHarvesterMemory { creep } mem = setMemory creep mem
 
 runHarvester :: Harvester -> Effect Unit
 runHarvester harvester@{ creep, mem } =
@@ -64,7 +63,7 @@ runHarvester harvester@{ creep, mem } =
       if energy creep == 0
       then do
         _ <- creep `say` "harvesting"
-        setMemory harvester (mem { job = Harvesting })
+        setHarvesterMemory harvester (mem { job = Harvesting })
       else do
         result <- deliverToClosestStructure creep
         if result then pure unit else do
@@ -78,6 +77,6 @@ runHarvester harvester@{ creep, mem } =
       if energy creep == energyCapacity creep
       then do
         _ <- creep `say` "delivering"
-        setMemory harvester (mem { job = Delivering })
+        setHarvesterMemory harvester (mem { job = Delivering })
       else harvestEnergy creep <#> ignore
           

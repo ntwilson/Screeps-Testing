@@ -5,7 +5,6 @@ import Prelude
 
 import Data.Argonaut (Json)
 import Data.Argonaut.Encode (class EncodeJson, encodeJson)
-import Data.Either (Either(Left, Right))
 import Data.Maybe (Maybe, fromMaybe)
 import Effect (Effect)
 import Screeps.Constants (structure_spawn)
@@ -17,9 +16,6 @@ type CreepInfo =
   { name :: String
   , needTime :: Int
   , remainingTime :: Int }
-
-memory :: forall props. Spawn -> { | props }
-memory = unsafeField "memory"
 
 name :: Spawn -> String
 name = unsafeField "name"

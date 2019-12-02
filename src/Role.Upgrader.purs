@@ -7,7 +7,7 @@ module Role.Upgrader
 
 import Prelude
 
-import Classes (energy, energyCapacity)
+import Classes (energy, energyCapacity, setMemory)
 import CreepRoles (Role)
 import CreepTasks (harvestEnergy, upgradeNearestController)
 import Data.Argonaut (class DecodeJson, class EncodeJson, fromString, stringify, toString)
@@ -15,7 +15,7 @@ import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Screeps (part_carry, part_move, part_work)
-import Screeps.Creep (say, setAllMemory)
+import Screeps.Creep (say)
 import Screeps.Types (BodyPartType, Creep)
 import Util (ignore)
 
@@ -54,8 +54,8 @@ instance decodeJobJson :: DecodeJson Job where
     | Just "harvesting" <- toString json = Right Harvesting 
     | otherwise = Left $ "Unable to recognize upgrader job: " <> stringify json
 
-setMemory :: Upgrader -> UpgraderMemory -> Effect Unit
-setMemory {creep} mem = setAllMemory creep mem 
+setUpgraderMemory :: Upgrader -> UpgraderMemory -> Effect Unit
+setUpgraderMemory {creep} mem = setMemory creep mem 
 
 runUpgrader :: Upgrader -> Effect Unit
 runUpgrader upgrader@{ creep, mem } =
@@ -65,7 +65,7 @@ runUpgrader upgrader@{ creep, mem } =
       if energy creep == 0
       then do
         _ <- creep `say` "harvesting"
-        setMemory upgrader (mem { job = Harvesting })
+        setUpgraderMemory upgrader (mem { job = Harvesting })
       else do
         result <- upgradeNearestController creep
         if result then pure unit 
@@ -75,5 +75,5 @@ runUpgrader upgrader@{ creep, mem } =
       if energy creep == energyCapacity creep
       then do
         _ <- creep `say` "upgrading"
-        setMemory upgrader (mem { job = Upgrading }) 
+        setUpgraderMemory upgrader (mem { job = Upgrading }) 
       else harvestEnergy creep <#> ignore

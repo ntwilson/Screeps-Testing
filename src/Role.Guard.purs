@@ -6,11 +6,12 @@ module Role.Guard
 
 import Prelude
 
+import Classes (setMemory)
 import CreepRoles (Role)
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Screeps (err_not_in_range, find_hostile_creeps, part_attack, part_move, part_tough)
-import Screeps.Creep (attackCreep, moveTo, setAllMemory)
+import Screeps.Creep (attackCreep, moveTo)
 import Screeps.RoomObject (pos, targetObj)
 import Screeps.RoomPosition (findClosestByPath)
 import Screeps.Types (BodyPartType, Creep)
@@ -29,8 +30,8 @@ constructionPlans =
 type GuardMemory = { role :: Role }
 type Guard = { creep :: Creep, mem :: GuardMemory }
 
-setMemory :: Guard -> GuardMemory -> Effect Unit
-setMemory { creep } mem = setAllMemory creep mem
+setGuardMemory :: Guard -> GuardMemory -> Effect Unit
+setGuardMemory { creep } mem = setMemory creep mem
 
 runGuard :: Guard -> Effect Unit
 runGuard guard@{ creep, mem } = do

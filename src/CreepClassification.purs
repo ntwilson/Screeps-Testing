@@ -7,6 +7,7 @@ module CreepClassification
 
 import Prelude
 
+import Classes (getMemory)
 import CreepRoles (Role(..))
 import Data.Argonaut (class DecodeJson, class EncodeJson, decodeJson, encodeJson)
 import Data.Argonaut as JSON
@@ -17,7 +18,6 @@ import Role.Builder (BuilderMemory, Builder)
 import Role.Guard (GuardMemory, Guard)
 import Role.Harvester (HarvesterMemory, Harvester)
 import Role.Upgrader (UpgraderMemory, Upgrader)
-import Screeps.Creep (getAllMemory)
 import Screeps.Spawn (createCreep)
 import Screeps.Types (BodyPartType, Creep, ReturnCode, Spawn)
 
@@ -49,7 +49,7 @@ newtype UnknownCreepType = UnknownCreepType String
 
 classifyCreep :: Creep -> Effect (Either UnknownCreepType VocationalCreep)
 classifyCreep creep = do
-  mem <- getAllMemory creep 
+  mem <- getMemory creep 
   case decodeJson mem of
     Right (HarvesterMemory h) -> pure $ Right $ Harvester { creep, mem: h }
     Right (UpgraderMemory u) -> pure $ Right $ Upgrader { creep, mem: u }

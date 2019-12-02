@@ -9,9 +9,6 @@ import Screeps.FFI (runThisEffFn0, runThisEffFn1, runThisEffFn2, unsafeField)
 color :: Flag -> Color
 color = unsafeField "color"
 
-memory :: forall a. Flag -> a
-memory = unsafeField "memory"
-
 name :: Flag -> String
 name = unsafeField "name"
 

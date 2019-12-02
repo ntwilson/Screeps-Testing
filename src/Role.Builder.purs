@@ -7,7 +7,7 @@ module Role.Builder
 
 import Prelude
 
-import Classes (energy, energyCapacity)
+import Classes (energy, energyCapacity, setMemory)
 import CreepRoles (Role)
 import CreepTasks (buildNextConstructionSite, harvestEnergy, repairNearestStructure, upgradeNearestController)
 import Data.Argonaut (class DecodeJson, class EncodeJson, fromString, stringify, toString)
@@ -15,7 +15,7 @@ import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Screeps (part_carry, part_move, part_work)
-import Screeps.Creep (say, setAllMemory)
+import Screeps.Creep (say)
 import Screeps.Types (BodyPartType, Creep)
 import Util (ignore)
 
@@ -53,8 +53,8 @@ instance decodeJobJson :: DecodeJson Job where
     | Just "harvesting" <- toString json = Right Harvesting 
     | otherwise = Left $ "Unable to recognize builder job: " <> stringify json
 
-setMemory :: Builder -> BuilderMemory -> Effect Unit
-setMemory {creep} mem = setAllMemory creep mem 
+setBuilderMemory :: Builder -> BuilderMemory -> Effect Unit
+setBuilderMemory {creep} mem = setMemory creep mem 
 
 runBuilder :: Builder -> Effect Unit
 runBuilder builder@{ creep, mem } = do
@@ -64,7 +64,7 @@ runBuilder builder@{ creep, mem } = do
       if energy creep == 0 
       then do
         _ <- say creep "harvesting"
-        setMemory builder (mem { job = Harvesting })
+        setBuilderMemory builder (mem { job = Harvesting })
       else do 
         result <- buildNextConstructionSite creep
         if result then pure unit else do
@@ -78,6 +78,6 @@ runBuilder builder@{ creep, mem } = do
       if energy creep == energyCapacity creep
       then do
         _ <- say creep "building"
-        setMemory builder (mem { job = Building })
+        setBuilderMemory builder (mem { job = Building })
       else harvestEnergy creep <#> ignore
 

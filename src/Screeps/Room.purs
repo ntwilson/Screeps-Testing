@@ -46,9 +46,6 @@ energyAvailable = unsafeField "energyAvailable"
 energyCapacityAvailable :: Room -> Int
 energyCapacityAvailable = unsafeField "energyCapacityAvailable"
 
-memory :: forall props. Room -> { | props }
-memory = unsafeField "energyAvailable"
-
 mode :: Room -> Mode
 mode = unsafeField "mode"
 
