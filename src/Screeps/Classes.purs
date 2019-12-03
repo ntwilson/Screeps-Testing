@@ -6,7 +6,7 @@ import Data.Argonaut (class EncodeJson, Json)
 import Effect (Effect)
 import Screeps.FFI (unsafeField, unsafeGetFieldEff, unsafeSetFieldEff)
 import Screeps.Memory (toJson)
-import Screeps.Types (class Structure, Container, Creep, Extension, Flag, Lab, Link, Nuker, PowerSpawn, Room, Ruin, Spawn, Storage, Store, Terminal, Tombstone, Tower)
+import Screeps.Types (class Structure, Container, Creep, Extension, Flag, Lab, Link, Nuker, PowerSpawn, Room, Ruin, Source, Spawn, Storage, Store, Terminal, Tombstone, Tower)
 import Store (getEnergy, getEnergyCapacity)
 
 class HasHealth a where
@@ -28,36 +28,25 @@ else instance structureHasHealth :: Structure a => HasHealth a where
   hitsMax = unsafeGetHitsMax
 
 
-class HasStorage a where
+class HasStore a where
   store :: a -> Store
 
 unsafeGetStore :: forall a. a -> Store
 unsafeGetStore = unsafeField "store"
 
-instance containerHasStorage :: HasStorage Container where store = unsafeGetStore
-instance creepHasStorage :: HasStorage Creep where store = unsafeGetStore
-instance terminalHasStorage :: HasStorage Terminal where store = unsafeGetStore
-instance towerHasStorage :: HasStorage Tower where store = unsafeGetStore
-instance tombstoneHasStorage :: HasStorage Tombstone where store = unsafeGetStore
-instance extensionHasStorage :: HasStorage Extension where store = unsafeGetStore
-instance labHasStorage :: HasStorage Lab where store = unsafeGetStore
-instance nukerHasStorage :: HasStorage Nuker where store = unsafeGetStore
-instance ruinHasStorage :: HasStorage Ruin where store = unsafeGetStore
-instance linkHasStorage :: HasStorage Link where store = unsafeGetStore
-instance powerSpawnHasStorage :: HasStorage PowerSpawn where store = unsafeGetStore
-instance spawnHasStorage :: HasStorage Spawn where store = unsafeGetStore
-instance storageHasStorage :: HasStorage Storage where store = unsafeGetStore
-
--- | note this makes the assumption that _every_ kind of store can hold
--- | energy.  See https://docs.screeps.com/api/#Store.
-energy :: forall a. HasStorage a => a -> Int 
-energy x = store x # getEnergy 
-
--- | note this makes the assumption that _every_ kind of store can hold
--- | energy.  See https://docs.screeps.com/api/#Store.
-energyCapacity :: forall a. HasStorage a => a -> Int
-energyCapacity x = store x # getEnergyCapacity
-
+instance containerHasStore :: HasStore Container where store = unsafeGetStore
+instance creepHasStore :: HasStore Creep where store = unsafeGetStore
+instance terminalHasStore :: HasStore Terminal where store = unsafeGetStore
+instance towerHasStore :: HasStore Tower where store = unsafeGetStore
+instance tombstoneHasStore :: HasStore Tombstone where store = unsafeGetStore
+instance extensionHasStore :: HasStore Extension where store = unsafeGetStore
+instance labHasStore :: HasStore Lab where store = unsafeGetStore
+instance nukerHasStore :: HasStore Nuker where store = unsafeGetStore
+instance ruinHasStore :: HasStore Ruin where store = unsafeGetStore
+instance linkHasStore :: HasStore Link where store = unsafeGetStore
+instance powerSpawnHasStore :: HasStore PowerSpawn where store = unsafeGetStore
+instance spawnHasStore :: HasStore Spawn where store = unsafeGetStore
+instance storageHasStore :: HasStore Storage where store = unsafeGetStore
 
 class HasMemory a where
   getMemory :: a -> Effect Json
@@ -85,3 +74,15 @@ instance roomHasMemory :: HasMemory Room where
   getMemory = unsafeGetMemory
   setMemory = unsafeSetMemory
   
+
+class HasEnergy a where
+  energy :: a -> Int
+  energyCapacity :: a -> Int
+
+instance sourceHasEnergy :: HasEnergy Source where
+  energy = unsafeField "energy"
+  energyCapacity = unsafeField "energyCapacity"
+
+else instance storeHasEnergy :: HasStore a => HasEnergy a where
+  energy x = store x # getEnergy 
+  energyCapacity x = store x # getEnergyCapacity
