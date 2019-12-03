@@ -7,18 +7,17 @@ module CreepClassification
 
 import Prelude
 
+import Classes (getMemory)
 import CreepRoles (Role(..))
 import Data.Argonaut (class DecodeJson, class EncodeJson, decodeJson, encodeJson)
 import Data.Argonaut as JSON
 import Data.Either (Either(..))
 import Data.Maybe (Maybe)
 import Effect (Effect)
-
 import Role.Builder (BuilderMemory, Builder)
 import Role.Harvester (HarvesterMemory, Harvester)
 import Role.Upgrader (UpgraderMemory, Upgrader)
-import Screeps.Creep (getAllMemory)
-import Screeps.Spawn (createCreep')
+import Screeps.Spawn (createCreep)
 import Screeps.Types (BodyPartType, Creep, ReturnCode, Spawn)
 
 data CreepMemory 
@@ -46,12 +45,12 @@ newtype UnknownCreepType = UnknownCreepType String
 
 classifyCreep :: Creep -> Effect (Either UnknownCreepType VocationalCreep)
 classifyCreep creep = do
-  mem <- getAllMemory creep 
+  mem <- getMemory creep 
   case decodeJson mem of
     Right (HarvesterMemory h) -> pure $ Right $ Harvester { creep, mem: h }
     Right (UpgraderMemory u) -> pure $ Right $ Upgrader { creep, mem: u }
     Right (BuilderMemory b) -> pure $ Right $ Builder { creep, mem: b }
     Left err -> pure $ Left $ UnknownCreepType $ "couldn't classify creep with memory: " <> JSON.stringify mem <> ". " <> err
 
-spawnCreep :: Spawn -> Array BodyPartType -> Maybe String -> CreepMemory -> Effect (Either ReturnCode String)
-spawnCreep spawn bodyParts name mem = createCreep' spawn bodyParts name mem
+spawnCreep :: Spawn -> Array BodyPartType -> Maybe String -> CreepMemory -> Effect ReturnCode
+spawnCreep spawn bodyParts name mem = createCreep spawn bodyParts name { dryRun: false, memory: mem }

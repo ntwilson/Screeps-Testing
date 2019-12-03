@@ -7,19 +7,7 @@ import Data.Maybe (Maybe)
 import Screeps.Constants (structure_nuker)
 import Screeps.FFI (runThisEffFn1, unsafeField)
 import Screeps.Structure (unsafeCast)
-import Screeps.Types (Nuker, ReturnCode, RoomPosition, Structure)
-
-energy :: Nuker -> Int
-energy = unsafeField "energy"
-
-energyCapacity :: Nuker -> Int
-energyCapacity = unsafeField "energyCapacity"
-
-ghodium :: Nuker -> Int
-ghodium = unsafeField "ghodium"
-
-ghodiumCapacity :: Nuker -> Int
-ghodiumCapacity = unsafeField "ghodiumCapacity"
+import Screeps.Types (Nuker, ReturnCode, RoomPosition, class Structure)
 
 cooldown :: Nuker -> Int
 cooldown = unsafeField "cooldown"
@@ -27,5 +15,5 @@ cooldown = unsafeField "cooldown"
 launchNuke :: Nuker -> RoomPosition -> Effect ReturnCode
 launchNuke = runThisEffFn1 "launchNuke"
 
-toNuker :: forall a. Structure a -> Maybe Nuker
+toNuker :: forall a. Structure a => a -> Maybe Nuker
 toNuker = unsafeCast structure_nuker

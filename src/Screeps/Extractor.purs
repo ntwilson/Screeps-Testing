@@ -5,7 +5,7 @@ import Data.Maybe (Maybe)
 
 import Screeps.Constants (structure_extractor)
 import Screeps.Structure (unsafeCast)
-import Screeps.Types (Extractor, Structure)
+import Screeps.Types (Extractor, class Structure)
 
-toExtractor :: forall a. Structure a -> Maybe Extractor
+toExtractor :: forall a. Structure a => a -> Maybe Extractor
 toExtractor = unsafeCast structure_extractor

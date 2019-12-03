@@ -6,7 +6,7 @@ import Effect (Effect)
 import Data.Maybe (Maybe)
 import Foreign.Object (Object)
 
-import Screeps.Types (ConstructionSite, Creep, Flag, GameGlobal, Id, Market, Room, Spawn, Structure, WorldMap)
+import Screeps.Types (ConstructionSite, Creep, Flag, GameGlobal, Id, Market, Room, Spawn, class Structure, WorldMap)
 import Screeps.FFI (runThisEffFn0, runThisEffFn1, runThisEffFn2, runThisFn1, toMaybe, unsafeField)
 
 foreign import getGameGlobal :: Effect GameGlobal
@@ -48,7 +48,7 @@ rooms = unsafeField "rooms"
 spawns :: GameGlobal -> Object Spawn
 spawns = unsafeField "spawns"
 
-structures :: GameGlobal -> Object (Structure Unit)
+structures :: GameGlobal -> Object (forall a. Structure a => a)
 structures = unsafeField "structures"
 
 time :: GameGlobal -> Int

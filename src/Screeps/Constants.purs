@@ -1,8 +1,6 @@
 module Screeps.Constants where
 
-import Prelude
-
-import Screeps.Types (BodyPartType, Color, ConstructionSite, Creep, Direction, FindType, Flag, LookType, Mineral, Mode, Nuke, Resource, ResourceType, ReturnCode, RoomPosition, Source, Spawn, Structure, StructureInfo, StructureType, Terrain, TerrainMask)
+import Screeps.Types (BodyPartType, Color, ConstructionSite, Creep, Direction, FindType, Flag, LookType, Mineral, Mode, Nuke, Resource, ResourceType, ReturnCode, RoomPosition, Ruin, SomeStructure, Source, Spawn, StructureInfo, StructureType, Terrain, TerrainMask, Tombstone)
 
 foreign import ok :: ReturnCode
 foreign import err_not_owner :: ReturnCode
@@ -34,9 +32,9 @@ foreign import find_sources_active :: FindType Source
 foreign import find_sources :: FindType Source
 foreign import find_dropped_energy :: FindType Resource
 foreign import find_dropped_resources :: FindType Resource
-foreign import find_structures :: FindType (Structure Unit)
-foreign import find_my_structures :: forall a. FindType (Structure a)
-foreign import find_hostile_structures :: FindType (Structure Unit)
+foreign import find_structures :: FindType SomeStructure
+foreign import find_my_structures :: FindType SomeStructure
+foreign import find_hostile_structures :: FindType SomeStructure
 foreign import find_flags :: FindType Flag
 foreign import find_construction_sites :: FindType ConstructionSite
 foreign import find_my_spawns :: FindType Spawn
@@ -45,6 +43,8 @@ foreign import find_my_construction_sites :: FindType ConstructionSite
 foreign import find_hostile_construction_sites :: FindType ConstructionSite
 foreign import find_minerals :: FindType Mineral
 foreign import find_nukes :: FindType Nuke
+foreign import find_ruins :: FindType Ruin
+foreign import find_tombstones :: FindType Tombstone
 
 foreign import top :: Direction
 foreign import top_right :: Direction
@@ -71,7 +71,7 @@ foreign import look_energy :: LookType Resource
 foreign import look_resources :: LookType Resource
 foreign import look_sources :: LookType Source
 foreign import look_minerals :: LookType Mineral
-foreign import look_structures :: LookType (Structure Unit)
+foreign import look_structures :: LookType SomeStructure
 foreign import look_flags :: LookType Flag
 foreign import look_construction_sites :: LookType ConstructionSite
 foreign import look_nukes :: LookType Nuke

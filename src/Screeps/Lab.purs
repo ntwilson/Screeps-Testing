@@ -7,25 +7,13 @@ import Data.Maybe (Maybe)
 import Screeps.Constants (structure_lab)
 import Screeps.FFI (runThisEffFn1, runThisEffFn2, unsafeField)
 import Screeps.Structure (unsafeCast)
-import Screeps.Types (Creep, Lab, ReturnCode, Structure)
+import Screeps.Types (Creep, Lab, ReturnCode, class Structure)
 
 cooldown :: Lab -> Int
 cooldown = unsafeField "cooldown"
 
-energy :: Lab -> Int
-energy = unsafeField "energy"
-
-energyCapacity :: Lab -> Int
-energyCapacity = unsafeField "energyCapacity"
-
-mineralAmount :: Lab -> Int
-mineralAmount = unsafeField "mineralAmount"
-
 mineralType :: Lab -> String
 mineralType = unsafeField "mineralType"
-
-mineralCapacity :: Lab -> Int
-mineralCapacity = unsafeField "mineralCapacity"
 
 boostCreep :: Lab -> Creep -> Effect ReturnCode
 boostCreep = runThisEffFn1 "boostCreep"
@@ -36,5 +24,5 @@ boostCreep' lab creep bodyPartsCount = runThisEffFn2 "boostCreep" lab creep body
 runReaction :: Lab -> Lab -> Lab -> Effect ReturnCode
 runReaction lab lab1 lab2 = runThisEffFn2 "runReaction" lab lab1 lab2
 
-toLab :: forall a. Structure a -> Maybe Lab
+toLab :: forall a. Structure a => a -> Maybe Lab
 toLab = unsafeCast structure_lab

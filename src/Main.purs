@@ -17,7 +17,7 @@ import Role.Harvester (runHarvester)
 import Role.Upgrader (runUpgrader)
 import Screeps.Constants (ok, part_carry, part_move, part_work)
 import Screeps.Game (creeps, getGameGlobal, spawns)
-import Screeps.Spawn (canCreateCreep)
+import Screeps.Spawn (createCreep)
 import Screeps.Types (Creep, Spawn)
 
 ignore :: forall a. a -> Unit
@@ -81,7 +81,8 @@ loop = do
   game <- getGameGlobal
 
   for_ (spawns game) \spawn -> do
-    if canCreateCreep spawn [part_move, part_work, part_work, part_carry] == ok
+    tryCreateCreepReturnCode <- createCreep spawn [part_move, part_work, part_work, part_carry] Nothing { dryRun: true, memory: {} }
+    if tryCreateCreepReturnCode == ok
     then spawnNewCreeps spawn
     else pure unit
 

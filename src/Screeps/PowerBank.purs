@@ -6,7 +6,7 @@ import Data.Maybe (Maybe)
 import Screeps.Constants (structure_power_bank)
 import Screeps.FFI (unsafeField)
 import Screeps.Structure (unsafeCast)
-import Screeps.Types (PowerBank, Structure)
+import Screeps.Types (PowerBank, class Structure)
 
 power :: PowerBank -> Int
 power = unsafeField "power"
@@ -14,5 +14,5 @@ power = unsafeField "power"
 ticksToDecay :: PowerBank -> Int
 ticksToDecay = unsafeField "ticksToDecay"
 
-toPowerBank :: forall a. Structure a -> Maybe PowerBank
+toPowerBank :: forall a. Structure a => a -> Maybe PowerBank
 toPowerBank = unsafeCast structure_power_bank

@@ -6,10 +6,10 @@ import Data.Maybe (Maybe)
 import Screeps.Constants (structure_wall)
 import Screeps.FFI (unsafeField)
 import Screeps.Structure (unsafeCast)
-import Screeps.Types (Structure, Wall)
+import Screeps.Types (class Structure, Wall)
 
 ticksToLive :: Wall -> Int
 ticksToLive = unsafeField "ticksToLive"
 
-toWall :: forall a. Structure a -> Maybe Wall
+toWall :: forall a. Structure a => a -> Maybe Wall
 toWall = unsafeCast structure_wall
